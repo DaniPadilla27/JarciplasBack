@@ -54,6 +54,12 @@ const crearUsuario = async (req, res) => {
       return res.status(400).json({ message: 'Correo electrónico no válido.' });
     }
 
+    // Verificar si el correo ya existe en la base de datos
+    const usuarioExistente = await Usuario.findOne({ where: { Correo: sanitizedCorreo } });
+    if (usuarioExistente) {
+      return res.status(400).json({ message: 'El correo ya está registrado. Por favor, usa otro correo.' });
+    }
+
     // Hash de la contraseña
     const saltRounds = 10; // Puedes ajustar esto según la seguridad deseada
     const hashedContraseña = await bcrypt.hash(Contraseña, saltRounds);
@@ -80,11 +86,11 @@ const crearUsuario = async (req, res) => {
       Contraseña: hashedContraseña, // Guarda la contraseña hasheada
       Intentos_contraseña: 0,
       id_sesion,
-      id_tipo_usuario,
-      MFA: mfaSecret
+      id_tipo_usuario
+      //MFA: mfaSecret
     });
 
-    res.status(201).json(nuevoUsuario);
+    res.status(200).json(nuevoUsuario);
   } catch (error) {
     console.error('Error al crear el usuario:', error);
     res.status(500).json({ message: 'Error interno al crear el usuario' });
@@ -92,7 +98,7 @@ const crearUsuario = async (req, res) => {
 };
 
 const iniciarSesionUsuario = async (req, res) => {
-  const { Correo, Contraseña, tokenMFA } = req.body;
+  const { Correo, Contraseña } = req.body;
 
   try {
     // Obtener la cantidad de errores permitidos desde la configuración
@@ -128,7 +134,7 @@ const iniciarSesionUsuario = async (req, res) => {
     }
 
     // Comparar la contraseña ingresada con la almacenada
-    const esCoincidente = await bcrypt.compare(Contraseña, usuario.Contraseña); // usuario.Contraseña es el hash
+    const esCoincidente = await bcrypt.compare(Contraseña, usuario.Contraseña);
 
     if (!esCoincidente) {
       usuario.Intentos_contraseña += 1;
@@ -152,19 +158,6 @@ const iniciarSesionUsuario = async (req, res) => {
     usuario.Intentos_contraseña = 0;
     usuario.bloqueadoHasta = null;
 
-    // Verificar MFA si está habilitado
-    if (usuario.MFA) {
-      const tokenValido = speakeasy.totp.verify({
-        secret: usuario.MFA,
-        encoding: 'base32',
-        token: tokenMFA,
-      });
-
-      if (!tokenValido) {
-        return res.status(401).json({ message: 'Token MFA inválido.' });
-      }
-    }
-
     const id_sesion = generarIdSesion();
     usuario.id_sesion = id_sesion;
     await usuario.save();
@@ -176,15 +169,19 @@ const iniciarSesionUsuario = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
+    // Devolver los datos del usuario al frontend
     res.status(200).json({
       id_usuario: usuario.id_usuarios,
+      tipo_usuario: usuario.id_tipo_usuario, // Enviar tipo de usuario
+      message: 'Inicio de sesión exitoso.',
     });
-    
   } catch (error) {
     console.error('Error al iniciar sesión del usuario:', error);
     res.status(500).json({ message: 'Error interno al iniciar sesión.' });
   }
 };
+
+
 
 const eliminarUsuario = async (req, res) => {
   try {
@@ -202,7 +199,7 @@ const eliminarUsuario = async (req, res) => {
 };
 
 const cambiarRolUsuario = async (req, res) => {
-  const { id_usuario, id_tipo_usuario } = req.body;
+  const { id_usuario, id_tipo_usuario } = req.body; 
 
   try {
     const usuario = await Usuario.findByPk(id_usuario);

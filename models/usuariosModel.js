@@ -62,7 +62,8 @@ const Usuario = sequelize.define('Usuario', {
   },
   MFA:{
     type: DataTypes.STRING(255),
-    allowNull: false,
+  allowNull: true, // Permitir valores nulos
+  defaultValue: null, // Valor predeterminado
   },
 }, {
   tableName: 'tbl_usuarios',
