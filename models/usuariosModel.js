@@ -45,7 +45,7 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false,
   },
   Contraseña: {
-    type: DataTypes.STRING(18),
+    type: DataTypes.STRING(255),
     allowNull: false,
   },
   Intentos_contraseña: {

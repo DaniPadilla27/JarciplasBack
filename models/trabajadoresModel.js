@@ -36,7 +36,7 @@ const Trabajador = sequelize.define('Trabajador', {
     },
   },
   Contraseña: {
-    type: DataTypes.STRING(18),
+    type: DataTypes.STRING(255),
     allowNull: false,
   },
   Intentos_contraseña: {

@@ -1,13 +1,13 @@
 const axios = require('axios');
 const Usuario = require('../models/usuariosModel');
-const Trabajador = require('../models/trabajadoresModel');
 const TipoUsuario = require('../models/tipo_UsuarioModel');
 const crypto = require('crypto');
 const FrecuenciaBloqueosUsuarios = require('../models/frecuenciaBloqueosUsuariosModel');
 const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const validator = require('validator');
-const Configuracion = require('../models/configuracionModel'); 
+const Configuracion = require('../models/configuracionModel');
+const bcrypt = require('bcrypt'); // Importar bcrypt para el hashing de contraseñas
 
 const generarIdSesion = () => {
   return crypto.randomBytes(32).toString('hex');
@@ -54,6 +54,10 @@ const crearUsuario = async (req, res) => {
       return res.status(400).json({ message: 'Correo electrónico no válido.' });
     }
 
+    // Hash de la contraseña
+    const saltRounds = 10; // Puedes ajustar esto según la seguridad deseada
+    const hashedContraseña = await bcrypt.hash(Contraseña, saltRounds);
+
     const id_sesion = generarIdSesion();
     const secret = speakeasy.generateSecret({ length: 20 });
     const mfaSecret = secret.base32;
@@ -73,7 +77,7 @@ const crearUsuario = async (req, res) => {
       Genero,
       Correo: sanitizedCorreo,
       Telefono: sanitizedTelefono,
-      Contraseña,
+      Contraseña: hashedContraseña, // Guarda la contraseña hasheada
       Intentos_contraseña: 0,
       id_sesion,
       id_tipo_usuario,
@@ -123,17 +127,21 @@ const iniciarSesionUsuario = async (req, res) => {
       }
     }
 
-    // Comparar la contraseña ingresada
-    if (usuario.Contraseña !== Contraseña) {
+    // Comparar la contraseña ingresada con la almacenada
+    const esCoincidente = await bcrypt.compare(Contraseña, usuario.Contraseña); // usuario.Contraseña es el hash
+
+    if (!esCoincidente) {
       usuario.Intentos_contraseña += 1;
 
       // Bloquear cuenta si se alcanzó el límite de intentos
       if (usuario.Intentos_contraseña >= cantidadErroresPermitidos) {
-        usuario.bloqueadoHasta = Date.now() + 5 * 60 * 1000; // Bloquear por 1 minuto
+        usuario.bloqueadoHasta = Date.now() + 5 * 60 * 1000; // Bloquear por 5 minutos
         await FrecuenciaBloqueosUsuarios.create({
           id_usuario: usuario.id_usuarios,
           fecha: new Date(),
         });
+        await usuario.save();
+        return res.status(403).json({ message: 'Cuenta bloqueada temporalmente por intentos fallidos.' });
       }
 
       await usuario.save();
@@ -145,9 +153,9 @@ const iniciarSesionUsuario = async (req, res) => {
     usuario.bloqueadoHasta = null;
 
     // Verificar MFA si está habilitado
-    if (usuario.secret_mfa) {
+    if (usuario.MFA) {
       const tokenValido = speakeasy.totp.verify({
-        secret: usuario.secret_mfa,
+        secret: usuario.MFA,
         encoding: 'base32',
         token: tokenMFA,
       });
@@ -178,6 +186,39 @@ const iniciarSesionUsuario = async (req, res) => {
   }
 };
 
+const eliminarUsuario = async (req, res) => {
+  try {
+    const usuario = await Usuario.findByPk(req.params.id);
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    await usuario.destroy();
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error al eliminar el usuario:', error);
+    res.status(500).json({ message: 'Error interno al eliminar el usuario' });
+  }
+};
+
+const cambiarRolUsuario = async (req, res) => {
+  const { id_usuario, id_tipo_usuario } = req.body;
+
+  try {
+    const usuario = await Usuario.findByPk(id_usuario);
+    if (!usuario) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    usuario.id_tipo_usuario = id_tipo_usuario;
+    await usuario.save();
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    console.error('Error al cambiar el rol del usuario:', error);
+    res.status(500).json({ message: 'Error interno al cambiar el rol del usuario' });
+  }
+};
 
 // Función para generar el código QR y el secret para MFA
 const generarMFAQR = async (req, res) => {
@@ -201,103 +242,42 @@ const generarMFAQR = async (req, res) => {
         console.error('Error al generar el código QR:', err);
         return res.status(500).json({ message: 'Error interno al generar el código QR.' });
       }
-      res.status(200).json({ qrCode: dataUrl });
+
+      res.status(200).json({
+        qr: dataUrl,
+        secret: secret.base32,
+      });
     });
   } catch (error) {
-    console.error('Error al generar MFA:', error);
-    res.status(500).json({ message: 'Error interno al generar MFA.' });
+    console.error('Error al generar QR MFA:', error);
+    res.status(500).json({ message: 'Error interno al generar QR MFA.' });
   }
 };
-
 
 // Función para verificar el token MFA
 const verificarTokenMFA = async (req, res) => {
-  const id_usuarios = req.params.id_usuarios; 
-  const { token } = req.body;
+  const { tokenMFA, id_usuario } = req.body;
 
   try {
-    const usuario = await Usuario.findByPk(id_usuarios);
+    const usuario = await Usuario.findByPk(id_usuario);
     if (!usuario) {
       return res.status(404).json({ message: 'Usuario no encontrado.' });
-    }
-
-    const secret = usuario.MFA;
-
-    if (!secret) {
-      return res.status(400).json({ message: 'MFA no configurado para este usuario.' });
     }
 
     const tokenValido = speakeasy.totp.verify({
-      secret: secret,
+      secret: usuario.MFA,
       encoding: 'base32',
-      token: token,
+      token: tokenMFA,
     });
 
-    if (tokenValido) {
-      res.status(200).json({ message: 'Autenticación MFA exitosa.' });
-    } else {
-      res.status(401).json({ message: 'Token MFA inválido.' });
+    if (!tokenValido) {
+      return res.status(401).json({ message: 'Token MFA inválido.' });
     }
+
+    res.status(200).json({ message: 'Token MFA válido.' });
   } catch (error) {
-    console.error('Error al verificar MFA:', error);
-    res.status(500).json({ message: 'Error interno al verificar MFA.' });
-  }
-};
-
-
-const eliminarUsuario = async (req, res) => {
-  const id_usuarios = req.params.id_usuarios; // Cambiar a id_usuarios
-
-  try {
-    await FrecuenciaBloqueosUsuarios.destroy({ where: { id_usuario: id_usuarios } });
-
-    const usuario = await Usuario.findByPk(id_usuarios);
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
-    }
-
-    await usuario.destroy();
-    res.status(200).json({ message: 'Usuario eliminado correctamente' });
-  } catch (error) {
-    console.error('Error al eliminar al usuario:', error.message);
-    res.status(500).json({ message: 'Error interno al eliminar al usuario' });
-  }
-};
-
-const cambiarRolUsuario = async (req, res) => {
-  const id_usuarios = req.params.id_usuarios; // Cambiar a id_usuarios
-  const { nuevoTipoUsuario } = req.body;
-
-  try {
-    const usuario = await Usuario.findByPk(id_usuarios);
-    if (!usuario) {
-      return res.status(404).json({ message: 'Usuario no encontrado.' });
-    }
-
-    if (!nuevoTipoUsuario) {
-      return res.status(400).json({ message: 'El nuevo tipo de usuario es requerido.' });
-    }
-
-    const nuevoTrabajador = await Trabajador.create({
-      Nombre: usuario.Nombre,
-      Apellido_Paterno: usuario.Apellido_Paterno,
-      Apellido_Materno: usuario.Apellido_Materno,
-      Edad: usuario.Edad,
-      Genero: usuario.Genero,
-      Correo: usuario.Correo,
-      Telefono: usuario.Telefono,
-      Contraseña: usuario.Contraseña,
-      Intentos_contraseña: usuario.Intentos_contraseña,
-      id_sesion: usuario.id_sesion,
-      id_tipo_trabajador: nuevoTipoUsuario,
-      MFA: usuario.MFA
-    });
-
-    await usuario.destroy();
-    res.status(201).json(nuevoTrabajador);
-  } catch (error) {
-    console.error('Error al cambiar rol del usuario:', error);
-    res.status(500).json({ message: 'Error interno al cambiar el rol del usuario' });
+    console.error('Error al verificar el token MFA:', error);
+    res.status(500).json({ message: 'Error interno al verificar el token MFA.' });
   }
 };
 
@@ -308,6 +288,6 @@ module.exports = {
   iniciarSesionUsuario,
   eliminarUsuario,
   cambiarRolUsuario,
-  generarMFAQR, 
-  verificarTokenMFA, 
+  generarMFAQR,
+  verificarTokenMFA,
 };

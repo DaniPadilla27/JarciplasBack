@@ -20,7 +20,8 @@ const Configuracion = require('./routes/configuracionRoutes');
 const InformacionEmpresa = require('./routes/informacionEmpresaRoutes');
 const contactoEmpresa = require('./routes/contactoEmpresaRoutes');
 const Recuperacion = require('./routes/recuperacionRoutes');
-
+const AdmRecuperacion = require('./routes/adminRoutes');
+const cloudinary = require('./routes/cloudinary');
 dotenv.config();
 
 const app = express();
@@ -52,6 +53,9 @@ app.use('/api', Configuracion);
 app.use('/api', InformacionEmpresa);
 app.use('/api', contactoEmpresa);
 app.use('/api', Recuperacion);
+app.use('/api', AdmRecuperacion);
+app.use('/api', cloudinary);
+
 // Conexión a la base de datos
 sequelize.sync().then(() => {
   app.listen(PORT, () => {

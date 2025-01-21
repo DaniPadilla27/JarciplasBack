@@ -1,14 +1,12 @@
 // routes/recuperacionRoutes.js
 const express = require('express');
-const { solicitarRecuperacion, verificarCodigo } = require('../controllers/recuperacionController');
-
 const router = express.Router();
+const recuperacionController = require('../controllers/recuperacionController');
+
 
 // Ruta para enviar el código de recuperación
-router.post('/enviar-codigo', solicitarRecuperacion);
+router.post('/recuperacion', recuperacionController.aggUsuarios);
 
-
-router.post('/verificar-codigo', verificarCodigo);
 
 module.exports = router;
 
