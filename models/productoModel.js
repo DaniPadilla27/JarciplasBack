@@ -1,27 +1,32 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); // Asegúrate de que este sea tu archivo de configuración de Sequelize
+const sequelize = require('../config/db');
 
-const Producto = sequelize.define('Producto', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    nombre_producto: {
-        type: DataTypes.STRING(255),
-        allowNull: false
-    },
-    precio: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
-    },
-    categoria: {
-        type: DataTypes.STRING(100),
-        allowNull: false
-    }
+const Productos = sequelize.define('productos', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+    allowNull: false,
+  },
+  nombre_producto: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
+  precio: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+  },
+  categoria: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+  },
+  imagen: {
+    type: DataTypes.BLOB('long'), // Cambia a STRING si prefieres usar URL
+    allowNull: false,
+  },
 }, {
-    tableName: 'tbl_productos', // Nombre de la tabla en la base de datos
-    timestamps: false // Si no necesitas campos createdAt y updatedAt
+  timestamps: false,
+  tableName: 'tbl_productos',
 });
 
-module.exports = Producto;
+module.exports = Productos;

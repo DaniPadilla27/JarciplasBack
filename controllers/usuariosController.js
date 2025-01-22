@@ -278,6 +278,51 @@ const verificarTokenMFA = async (req, res) => {
   }
 };
 
+
+
+
+const obtenerPerfil = async (req, res) => {
+  try {
+    const { idSesion } = req.params;  // Obtener el ID de sesión desde los headers
+    if (!idSesion) {
+      return res.status(401).json({ mensaje: 'No se ha proporcionado un ID de sesión' });
+    }
+
+    // Buscar el usuario por el ID de sesión en la base de datos
+    const usuario = await Usuario.findOne({
+      where: { id_sesion: idSesion },
+      attributes: [
+        'id_usuarios',
+        'Nombre',
+        'Apellido_Paterno',
+        'Apellido_Materno',
+        'Edad',
+        'Genero',
+        'Correo',
+        'Telefono',
+      ],
+      include: [
+        {
+          model: TipoUsuario,
+          attributes: ['Nombre_Tipo'], // Atributos relevantes del tipo de usuario
+        },
+      ],
+    });
+
+    // Si no se encuentra el usuario o la sesión es inválida
+    if (!usuario) {
+      return res.status(404).json({ mensaje: 'Usuario no encontrado o sesión inválida' });
+    }
+
+    // Devolver los datos del usuario
+    res.json({ usuario });
+  } catch (error) {
+    console.error('Error al obtener el perfil:', error);
+    res.status(500).json({ mensaje: 'Error interno del servidor' });
+  }
+};
+
+
 module.exports = {
   obtenerUsuarios,
   obtenerUsuarioPorId,
@@ -287,4 +332,5 @@ module.exports = {
   cambiarRolUsuario,
   generarMFAQR,
   verificarTokenMFA,
+  obtenerPerfil
 };

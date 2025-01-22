@@ -11,5 +11,6 @@ router.post('/usuarios/:id_usuarios/cambiar_rol',  usuarioController.cambiarRolU
 router.delete('/usuarios/:id_usuarios',  usuarioController.eliminarUsuario); // Añadir ruta para eliminar usuario
 router.post('/usuarios/:id_usuarios/generar_mfa',  usuarioController.generarMFAQR); // Ruta para generar MFA
 router.post('/usuarios/:id_usuarios/verificar_mfa',  usuarioController.verificarTokenMFA); // Ruta para verificar MFA
+router.get('/perfil/:id_usuario',  usuarioController.obtenerPerfil);//ruta para la informacion del usuario 
 
 module.exports = router;
