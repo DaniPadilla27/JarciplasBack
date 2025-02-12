@@ -39,7 +39,7 @@ const crearUsuario = async (req, res) => {
   const { Nombre, Apellido_Paterno, Apellido_Materno, Edad, Genero, Correo, Telefono, Contraseña, id_tipo_usuario } = req.body;
 
   try {
-    if (!Nombre || !Apellido_Paterno || !Apellido_Materno || !Edad || !Genero || !Correo || !Telefono || !Contraseña || !id_tipo_usuario) {
+    if (!Nombre || !Apellido_Paterno || !Apellido_Materno || !Edad || !Genero || !Correo || !Telefono || !Contraseña) {
       return res.status(400).json({ message: 'Todos los campos son requeridos.' });
     }
 
@@ -61,7 +61,7 @@ const crearUsuario = async (req, res) => {
     }
 
     // Hash de la contraseña
-    const saltRounds = 10; // Puedes ajustar esto según la seguridad deseada
+    const saltRounds = 10;
     const hashedContraseña = await bcrypt.hash(Contraseña, saltRounds);
 
     const id_sesion = generarIdSesion();
@@ -75,6 +75,7 @@ const crearUsuario = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
+    // Si `id_tipo_usuario` no se proporciona, asignar 2 por defecto
     const nuevoUsuario = await Usuario.create({
       Nombre: sanitizedNombre,
       Apellido_Paterno: sanitizedApellidoPaterno,
@@ -83,11 +84,10 @@ const crearUsuario = async (req, res) => {
       Genero,
       Correo: sanitizedCorreo,
       Telefono: sanitizedTelefono,
-      Contraseña: hashedContraseña, // Guarda la contraseña hasheada
+      Contraseña: hashedContraseña,
       Intentos_contraseña: 0,
       id_sesion,
-      id_tipo_usuario
-      //MFA: mfaSecret
+      id_tipo_usuario: id_tipo_usuario || 4  
     });
 
     res.status(200).json(nuevoUsuario);
@@ -97,9 +97,10 @@ const crearUsuario = async (req, res) => {
   }
 };
 
+
 const iniciarSesionUsuario = async (req, res) => {
   const { Correo, Contraseña } = req.body;
-
+  
   try {
     // Obtener la cantidad de errores permitidos desde la configuración
     const configuracion = await Configuracion.findByPk(1);

@@ -2,11 +2,11 @@ const Producto = require('../models/productoModel');
 
 
 const crearProducto = async (req, res) => {
-  const { nombre_producto, precio, categoria } = req.body;
+  const { nombre_producto, precio, categoria,descripcion } = req.body;
   const imagen = req.file ? req.file.buffer : null; // Captura la imagen
 
   // Validar que todos los campos estén presentes
-  if (!nombre_producto || !precio || !categoria || !imagen) {
+  if (!nombre_producto || !precio || !categoria || !imagen || !descripcion) {
     return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
   }
 
@@ -17,6 +17,7 @@ const crearProducto = async (req, res) => {
       precio,
       categoria,
       imagen, // Guarda la imagen como BLOB
+      descripcion
     });
 
     res.status(201).json({
@@ -33,7 +34,7 @@ const mostrarProductos = async (req, res) => {
   try {
     console.log('Iniciando consulta a la base de datos...');
     const productos = await Producto.findAll({
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen'], // Incluye la imagen
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen','descripcion'], // Incluye la imagen
     });
 
     if (!productos.length) {
@@ -47,7 +48,9 @@ const mostrarProductos = async (req, res) => {
       nombre_producto: producto.nombre_producto,
       precio: producto.precio,
       categoria: producto.categoria,
+      descripcion: producto.descripcion,
       imagen: producto.imagen ? producto.imagen.toString('base64') : null, // Convertir a Base64
+      
     }));
 
     console.log('Productos obtenidos:', productosConImagen);

@@ -24,6 +24,10 @@ const Productos = sequelize.define('productos', {
     type: DataTypes.BLOB('long'), // Cambia a STRING si prefieres usar URL
     allowNull: false,
   },
+  descripcion: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
 }, {
   timestamps: false,
   tableName: 'tbl_productos',
