@@ -10,7 +10,7 @@ const Usuario = sequelize.define('Usuario', {
   },
   id_tipo_usuario: {
     type: DataTypes.INTEGER,
-    allowNull: true,
+    allowNull: true, // Puede ser NULL al inicio
     references: {
       model: TipoUsuario,
       key: 'id_tipo_usuarios',
@@ -20,29 +20,14 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.STRING(60),
     allowNull: false,
   },
-  Apellido_Paterno: {
-    type: DataTypes.STRING(60),
-    allowNull: false,
-  },
-  Apellido_Materno: {
-    type: DataTypes.STRING(60),
-    allowNull: false,
-  },
-  Edad: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  Genero: {
-    type: DataTypes.STRING(15),
-    allowNull: false,
-  },
   Correo: {
     type: DataTypes.STRING(60),
     allowNull: false,
+    unique: true, // Evita que se registren correos duplicados
   },
   Telefono: {
     type: DataTypes.STRING(15),
-    allowNull: false,
+    allowNull: true, // Permitimos que sea NULL al inicio
   },
   Contraseña: {
     type: DataTypes.STRING(255),
@@ -51,6 +36,7 @@ const Usuario = sequelize.define('Usuario', {
   Intentos_contraseña: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    defaultValue: 0, // Por defecto empieza en 0 intentos
   },
   id_sesion: {
     type: DataTypes.STRING(255),
@@ -60,10 +46,10 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.DATE,
     allowNull: true,
   },
-  MFA:{
+  MFA: {
     type: DataTypes.STRING(255),
-  allowNull: true, // Permitir valores nulos
-  defaultValue: null, // Valor predeterminado
+    allowNull: true,
+    defaultValue: null,
   },
 }, {
   tableName: 'tbl_usuarios',
@@ -77,5 +63,3 @@ Usuario.belongsTo(TipoUsuario, {
 });
 
 module.exports = Usuario;
-
-

@@ -35,20 +35,17 @@ const obtenerUsuarioPorId = async (req, res) => {
   }
 };
 
-const crearUsuario = async (req, res) => {
-  const { Nombre, Apellido_Paterno, Apellido_Materno, Edad, Genero, Correo, Telefono, Contraseña, id_tipo_usuario } = req.body;
+const crearUsuario = async (req, res) => { 
+  const { Nombre, Correo, Contraseña, id_tipo_usuario } = req.body;
 
   try {
-    if (!Nombre || !Apellido_Paterno || !Apellido_Materno || !Edad || !Genero || !Correo || !Telefono || !Contraseña) {
+    if (!Nombre || !Correo || !Contraseña) {
       return res.status(400).json({ message: 'Todos los campos son requeridos.' });
     }
 
     // Sanitización y validación de entradas
     const sanitizedNombre = validator.escape(Nombre);
-    const sanitizedApellidoPaterno = validator.escape(Apellido_Paterno);
-    const sanitizedApellidoMaterno = validator.escape(Apellido_Materno);
     const sanitizedCorreo = validator.normalizeEmail(Correo);
-    const sanitizedTelefono = validator.escape(String(Telefono));
     
     if (!validator.isEmail(sanitizedCorreo)) {
       return res.status(400).json({ message: 'Correo electrónico no válido.' });
@@ -78,12 +75,7 @@ const crearUsuario = async (req, res) => {
     // Si `id_tipo_usuario` no se proporciona, asignar 2 por defecto
     const nuevoUsuario = await Usuario.create({
       Nombre: sanitizedNombre,
-      Apellido_Paterno: sanitizedApellidoPaterno,
-      Apellido_Materno: sanitizedApellidoMaterno,
-      Edad,
-      Genero,
       Correo: sanitizedCorreo,
-      Telefono: sanitizedTelefono,
       Contraseña: hashedContraseña,
       Intentos_contraseña: 0,
       id_sesion,
@@ -96,6 +88,7 @@ const crearUsuario = async (req, res) => {
     res.status(500).json({ message: 'Error interno al crear el usuario' });
   }
 };
+
 
 
 const iniciarSesionUsuario = async (req, res) => {
