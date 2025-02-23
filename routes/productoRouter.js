@@ -9,5 +9,5 @@ const upload = multer();
 
 router.post('/cambios',upload.single('imagen'),NproductoControllers.crearProducto);
 router.get('/mostrar',NproductoControllers.mostrarProductos);
-
+router.get('/productos-por-categoria',NproductoControllers.obtenerProductosPorCategoria);
 module.exports = router;

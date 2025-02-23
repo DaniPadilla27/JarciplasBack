@@ -66,9 +66,48 @@ const mostrarProductos = async (req, res) => {
   }
 };
 
+const obtenerProductosPorCategoria = async (req, res) => {
+  try {
+    const productos = await Producto.findAll({
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion'],
+      where: Producto.sequelize.literal(`
+        id IN (
+          SELECT MIN(p2.id)
+          FROM tbl_productos p2
+          GROUP BY p2.categoria
+        )
+      `),
+    });
+
+    // Convertir la imagen a Base64
+    const productosConImagen = productos.map((producto) => ({
+      id: producto.id,
+      nombre_producto: producto.nombre_producto,
+      precio: producto.precio,
+      categoria: producto.categoria,
+      descripcion: producto.descripcion,
+      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null, 
+    }));
+
+    // 🔍 Verificar en la consola del backend si las imágenes están presentes
+    console.log('Productos obtenidos:', productosConImagen.map(p => ({
+      id: p.id,
+      nombre: p.nombre_producto,
+      imagen: p.imagen ? '✅ Imagen presente' : '❌ Sin imagen'
+    })));
+
+    res.json({ productos: productosConImagen }); 
+  } catch (error) {
+    console.error('Error en la consulta:', error);
+    res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message });
+  }
+};
+
+
 
 
 module.exports = {
     crearProducto,
-    mostrarProductos
+    mostrarProductos,
+    obtenerProductosPorCategoria
 };
