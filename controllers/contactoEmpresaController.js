@@ -12,7 +12,7 @@ const crearContacto = async (req, res) => {
     res.status(500).json({ message: 'Error al crear el contacto' });
   }
 };
-
+ 
 // Consultar todos los contactos
 const obtenerContactos = async (req, res) => {
   try {

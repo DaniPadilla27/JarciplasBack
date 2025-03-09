@@ -47,7 +47,7 @@ app.use('/api', FrecuenciaBloqueosTrabajador);
 app.use('/api', Politicas);
 app.use('/api', HistorialPoliticas);
 app.use('/api', DeslindeLegal);
-app.use('/api', HistorialDeslinde);
+app.use('/api', HistorialDeslinde); 
 app.use('/api', Terminos);
 app.use('/api', HistorialTerminos);
 app.use('/api', Configuracion);
