@@ -2,8 +2,6 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const Usuario = require('../models/usuariosModel');
 
-let recoveryCode; // Variable para almacenar el código de verificación
-
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -14,12 +12,13 @@ const transporter = nodemailer.createTransport({
 
 const enviarCorreo = async (correo, codigo) => {
   const mailOptions = {
-    from: `"Tu Nombre" <${process.env.EMAIL_USER}>`,
+    from: `"Jarciplas" <${process.env.EMAIL_USER}>`,
     to: correo,
     subject: 'Código de verificación',
     html: `<p>Hola,</p>
            <p>Has solicitado restablecer tu contraseña. Aquí tienes tu código de verificación:</p>
            <p><strong>${codigo}</strong></p>
+           <p>Este código expirará en 5 minutos.</p>
            <p>Si no has solicitado este cambio, puedes ignorar este mensaje.</p>`,
   };
 
@@ -42,9 +41,16 @@ const solicitarRecuperacion = async (req, res) => {
       return res.status(400).json({ message: 'El usuario no está registrado.' });
     }
 
-    recoveryCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generar código de recuperación
+    const recoveryCode = Math.floor(100000 + Math.random() * 900000).toString(); // Generar código de recuperación
+    const recoveryCodeExpires = new Date(new Date().getTime() + 5 * 60000); // 5 minutos
 
-    await enviarCorreo(email, recoveryCode); // Pasar el código generado
+    // Actualizar el usuario con el código y la fecha de expiración
+    await user.update({
+      codigo_recuperacion: recoveryCode,
+      codigo_recuperacion_expiracion: recoveryCodeExpires,
+    });
+
+    await enviarCorreo(email, recoveryCode); // Enviar el código por correo
 
     return res.json({ message: 'Código enviado exitosamente' });
   } catch (error) {
@@ -65,8 +71,8 @@ const verificarCodigo = async (req, res) => {
 
     // Verificar si el código coincide y no ha expirado
     if (
-      user.recoveryCode === codigo.trim() &&
-      new Date(user.recoveryCodeExpires) > new Date()
+      user.codigo_recuperacion === codigo.trim() &&
+      new Date(user.codigo_recuperacion_expiracion) > new Date()
     ) {
       return res.json({ message: 'Código verificado correctamente.' });
     } else {

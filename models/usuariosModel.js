@@ -10,7 +10,7 @@ const Usuario = sequelize.define('Usuario', {
   },
   id_tipo_usuario: {
     type: DataTypes.INTEGER,
-    allowNull: true, // Puede ser NULL al inicio
+    allowNull: true,
     references: {
       model: TipoUsuario,
       key: 'id_tipo_usuarios',
@@ -23,11 +23,11 @@ const Usuario = sequelize.define('Usuario', {
   Correo: {
     type: DataTypes.STRING(60),
     allowNull: false,
-    unique: true, // Evita que se registren correos duplicados
+    unique: true,
   },
   Telefono: {
     type: DataTypes.STRING(15),
-    allowNull: true, // Permitimos que sea NULL al inicio
+    allowNull: true,
   },
   Contraseña: {
     type: DataTypes.STRING(255),
@@ -36,7 +36,7 @@ const Usuario = sequelize.define('Usuario', {
   Intentos_contraseña: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0, // Por defecto empieza en 0 intentos
+    defaultValue: 0,
   },
   id_sesion: {
     type: DataTypes.STRING(255),
@@ -51,12 +51,19 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: true,
     defaultValue: null,
   },
+  codigo_recuperacion: {
+    type: DataTypes.STRING(6), // Código de 6 dígitos
+    allowNull: true,
+  },
+  codigo_recuperacion_expiracion: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 }, {
   tableName: 'tbl_usuarios',
   timestamps: false,
 });
 
-// Definir la relación
 Usuario.belongsTo(TipoUsuario, {
   foreignKey: 'id_tipo_usuario',
   targetKey: 'id_tipo_usuarios',
