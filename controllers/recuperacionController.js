@@ -1,7 +1,7 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const Usuario = require('../models/usuariosModel');
-
+const bcrypt = require('bcrypt');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -84,4 +84,38 @@ const verificarCodigo = async (req, res) => {
   }
 };
 
-module.exports = { solicitarRecuperacion, verificarCodigo };
+
+const actualizarContrasena = async (req, res) => {
+  const { correo, nuevaContrasena } = req.body;
+  console.log(req.body);
+
+  try {
+    // Buscar al usuario por su correo
+    const user = await Usuario.findOne({ where: { Correo: correo } });
+
+    if (!user) {
+      return res.status(400).json({ message: 'El usuario no está registrado.' });
+    }
+
+    // Hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(nuevaContrasena, 10);
+
+    // Actualizar la contraseña y limpiar los campos de recuperación
+    await Usuario.update(
+      {
+        Contraseña: hashedPassword, // Actualiza la contraseña
+        codigo_recuperacion: null, // Limpia el código de recuperación
+        codigo_recuperacion_expiracion: null, // Limpia la fecha de expiración
+      },
+      {
+        where: { Correo: correo }, // Condición para actualizar el usuario con el correo especificado
+      }
+    );
+
+    return res.json({ message: 'Contraseña actualizada correctamente.' });
+  } catch (error) {
+    console.error('Error al actualizar la contraseña:', error);
+    return res.status(500).json({ message: 'Ocurrió un problema. Intenta más tarde.' });
+  }
+};
+module.exports = { solicitarRecuperacion, verificarCodigo, actualizarContrasena };
