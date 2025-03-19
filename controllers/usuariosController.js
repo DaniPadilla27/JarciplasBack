@@ -7,7 +7,9 @@ const speakeasy = require('speakeasy');
 const QRCode = require('qrcode');
 const validator = require('validator');
 const Configuracion = require('../models/configuracionModel');
+
 const bcrypt = require('bcrypt'); // Importar bcrypt para el hashing de contraseñas
+
 
 const generarIdSesion = () => {
   return crypto.randomBytes(32).toString('hex');

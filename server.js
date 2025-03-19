@@ -24,6 +24,8 @@ const AdmRecuperacion = require('./routes/adminRoutes');
 const cloudinary = require('./routes/cloudinary');
 const productos = require('./routes/productoRouter');
 
+const helmet = require('helmet'); // Importa Helmet
+
 dotenv.config();
 
 const app = express();
@@ -33,10 +35,40 @@ const PORT = process.env.PORT || 3001;
 app.use(express.json());
 
 // Middleware para manejar CORS
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:4200'], // Permitir peticiones desde tu frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
+    credentials: true, // Permitir envío de cookies si es necesario
+  })
+);
 
 // Middleware para manejar cookies
 app.use(cookieParser()); // Agrega el middleware cookie-parser aquí
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "http://localhost:4200"],
+        connectSrc: ["'self'", "http://localhost:3001"],
+        frameAncestors: ["'none'"], // Ya evita el Clickjacking
+      },
+    },
+    crossOriginEmbedderPolicy: true, // Bloquea embebidos peligrosos
+    crossOriginOpenerPolicy: { policy: "same-origin" }, // Protege contra ataques tipo Spectre
+    crossOriginResourcePolicy: { policy: "same-origin" }, // Controla carga de recursos
+  })
+);
+
+// 🔹 Agrega esta línea para asegurarte de que la cabecera `X-Frame-Options` se configura correctamente
+app.use(helmet.frameguard({ action: 'deny' }));
+
+app.disable('x-powered-by');
 
 // Rutas
 app.use('/api', tipoTrabajadorRoutes);
