@@ -23,6 +23,7 @@ const Recuperacion = require('./routes/recuperacionRoutes');
 const AdmRecuperacion = require('./routes/adminRoutes');
 const cloudinary = require('./routes/cloudinary');
 const productos = require('./routes/productoRouter');
+const logger = require('./utils/logger');
 
 const helmet = require('helmet'); // Importa Helmet
 
@@ -93,11 +94,11 @@ app.use('/api', cloudinary);
 app.use('/api', productos);
 app.use('/api', productos);
 
-// Conexión a la base de datos
+// Conexión a la base de datos y arranque del servidor
 sequelize.sync().then(() => {
   app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    logger.info(`Servidor corriendo en el puerto ${PORT}`);
   });
 }).catch(err => {
-  console.error('Error al sincronizar la base de datos:', err);
+  logger.error(`Error al sincronizar la base de datos: ${err.message}`);
 });

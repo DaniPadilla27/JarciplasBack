@@ -1,4 +1,5 @@
 const Producto = require('../models/productoModel');
+const logger = require('../utils/logger'); // Importar el logger
 
 
 const crearProducto = async (req, res) => {
@@ -25,20 +26,20 @@ const crearProducto = async (req, res) => {
       producto: nuevoProducto,
     });
   } catch (error) {
-    console.error('Error al crear el producto:', error);
+    conloggersole.error('Error al crear el producto:', error);
     res.status(500).json({ mensaje: 'Error al guardar el producto' });
   }
 };
 
 const mostrarProductos = async (req, res) => {
   try {
-    console.log('Iniciando consulta a la base de datos...');
+    logger.log('Iniciando consulta a la base de datos...');
     const productos = await Producto.findAll({
       attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen','descripcion'], // Incluye la imagen
     });
 
     if (!productos.length) {
-      console.log('No se encontraron productos.');
+      logger.log('No se encontraron productos.');
       return res.status(404).json({ mensaje: 'No hay productos disponibles.' });
     }
 
@@ -53,13 +54,13 @@ const mostrarProductos = async (req, res) => {
       
     }));
 
-    console.log('Productos obtenidos:', productosConImagen);
+    logger.log('Productos obtenidos:', productosConImagen);
     res.status(200).json({
       mensaje: 'Productos obtenidos correctamente',
       productos: productosConImagen,
     });
   } catch (error) {
-    console.error('Error al obtener los productos:', error);
+    logger.error('Error al obtener los productos:', error);
     res.status(500).json({
       mensaje: 'Error al obtener los productos, inténtelo nuevamente más tarde.',
     });
@@ -90,7 +91,7 @@ const obtenerProductosPorCategoria = async (req, res) => {
     }));
 
     // 🔍 Verificar en la consola del backend si las imágenes están presentes
-    console.log('Productos obtenidos:', productosConImagen.map(p => ({
+    logger.log('Productos obtenidos:', productosConImagen.map(p => ({
       id: p.id,
       nombre: p.nombre_producto,
       imagen: p.imagen ? '✅ Imagen presente' : '❌ Sin imagen'
@@ -98,7 +99,7 @@ const obtenerProductosPorCategoria = async (req, res) => {
 
     res.json({ productos: productosConImagen }); 
   } catch (error) {
-    console.error('Error en la consulta:', error);
+    logger.error('Error en la consulta:', error);
     res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message });
   }
 };

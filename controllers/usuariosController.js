@@ -9,6 +9,7 @@ const validator = require('validator');
 const Configuracion = require('../models/configuracionModel');
 
 const bcrypt = require('bcrypt'); // Importar bcrypt para el hashing de contraseñas
+const logger = require('../utils/logger'); // Importamos el logger
 
 
 const generarIdSesion = () => {
@@ -20,7 +21,7 @@ const obtenerUsuarios = async (req, res) => {
     const usuarios = await Usuario.findAll();
     res.json(usuarios);
   } catch (error) {
-    console.error('Error al obtener los usuarios:', error);
+    logger.error('Error al obtener los usuarios:', error);
     res.status(500).json({ message: 'Error interno al obtener los usuarios' });
   }
 };
@@ -86,7 +87,7 @@ const crearUsuario = async (req, res) => {
 
     res.status(200).json(nuevoUsuario);
   } catch (error) {
-    console.error('Error al crear el usuario:', error);
+    logger.error('Error al crear el usuario:', error);
     res.status(500).json({ message: 'Error interno al crear el usuario' });
   }
 };
@@ -172,7 +173,7 @@ const iniciarSesionUsuario = async (req, res) => {
       message: 'Inicio de sesión exitoso.',
     });
   } catch (error) {
-    console.error('Error al iniciar sesión del usuario:', error);
+    logger.error('Error al iniciar sesión del usuario:', error);
     res.status(500).json({ message: 'Error interno al iniciar sesión.' });
   }
 };
@@ -189,7 +190,7 @@ const eliminarUsuario = async (req, res) => {
     await usuario.destroy();
     res.status(204).send();
   } catch (error) {
-    console.error('Error al eliminar el usuario:', error);
+    logger.error('Error al eliminar el usuario:', error);
     res.status(500).json({ message: 'Error interno al eliminar el usuario' });
   }
 };
@@ -208,7 +209,7 @@ const cambiarRolUsuario = async (req, res) => {
 
     res.status(200).json(usuario);
   } catch (error) {
-    console.error('Error al cambiar el rol del usuario:', error);
+    logger.error('Error al cambiar el rol del usuario:', error);
     res.status(500).json({ message: 'Error interno al cambiar el rol del usuario' });
   }
 };
@@ -232,7 +233,7 @@ const generarMFAQR = async (req, res) => {
 
     QRCode.toDataURL(secret.otpauth_url, (err, dataUrl) => {
       if (err) {
-        console.error('Error al generar el código QR:', err);
+        logger.error('Error al generar el código QR:', err);
         return res.status(500).json({ message: 'Error interno al generar el código QR.' });
       }
 
@@ -242,7 +243,7 @@ const generarMFAQR = async (req, res) => {
       });
     });
   } catch (error) {
-    console.error('Error al generar QR MFA:', error);
+    logger.error('Error al generar QR MFA:', error);
     res.status(500).json({ message: 'Error interno al generar QR MFA.' });
   }
 };
@@ -269,7 +270,7 @@ const verificarTokenMFA = async (req, res) => {
 
     res.status(200).json({ message: 'Token MFA válido.' });
   } catch (error) {
-    console.error('Error al verificar el token MFA:', error);
+    logger.error('Error al verificar el token MFA:', error);
     res.status(500).json({ message: 'Error interno al verificar el token MFA.' });
   }
 };
@@ -313,7 +314,7 @@ const obtenerPerfil = async (req, res) => {
     // Devolver los datos del usuario
     res.json({ usuario });
   } catch (error) {
-    console.error('Error al obtener el perfil:', error);
+    logger.error('Error al obtener el perfil:', error);
     res.status(500).json({ mensaje: 'Error interno del servidor' });
   }
 };

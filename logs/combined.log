@@ -1,0 +1,6 @@
+2025-03-19 00:32:33 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-19 00:44:28 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-19 00:45:05 [ERROR]: Error al iniciar sesión del usuario: Unknown column 'codigo_recuperacion' in 'field list'
+2025-03-19 00:45:23 [ERROR]: Error al obtener los productos: Cannot create property 'Symbol(level)' on string 'Iniciando consulta a la base de datos...'
+2025-03-19 00:45:23 [ERROR]: Error al obtener los productos: Cannot create property 'Symbol(level)' on string 'Iniciando consulta a la base de datos...'
+2025-03-19 00:45:23 [ERROR]: Error al obtener los productos: Cannot create property 'Symbol(level)' on string 'Iniciando consulta a la base de datos...'
