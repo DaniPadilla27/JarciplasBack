@@ -81,6 +81,7 @@ app.use('/api', Politicas);
 app.use('/api', HistorialPoliticas);
 app.use('/api', DeslindeLegal);
 app.use('/api', HistorialDeslinde); 
+app.use('/api', HistorialDeslinde); 
 app.use('/api', Terminos);
 app.use('/api', HistorialTerminos);
 app.use('/api', Configuracion);
@@ -89,6 +90,7 @@ app.use('/api', contactoEmpresa);
 app.use('/api', Recuperacion);
 app.use('/api', AdmRecuperacion);
 app.use('/api', cloudinary);
+app.use('/api', productos);
 app.use('/api', productos);
 
 // Conexión a la base de datos

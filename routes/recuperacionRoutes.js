@@ -5,8 +5,9 @@ const recuperacionController = require('../controllers/recuperacionController');
 
 
 // Ruta para enviar el código de recuperación
-router.post('/recuperacion', recuperacionController.aggUsuarios);
-
+router.put('/actualizarcon', recuperacionController.actualizarContrasena);
+router.post('/solicitarR', recuperacionController.solicitarRecuperacion);
+router.post('/verificarCodigo', recuperacionController.verificarCodigo);
 
 module.exports = router;
 
