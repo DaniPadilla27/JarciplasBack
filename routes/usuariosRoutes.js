@@ -13,4 +13,7 @@ router.post('/usuarios/:id_usuarios/generar_mfa',  usuarioController.generarMFAQ
 router.post('/usuarios/:id_usuarios/verificar_mfa',  usuarioController.verificarTokenMFA); // Ruta para verificar MFA
 router.get('/perfil/:id_usuario',  usuarioController.obtenerPerfil);//ruta para la informacion del usuario 
 
+
+router.post('/preguntasecreta',  usuarioController.recuperarConPreguntaSecreta);
+
 module.exports = router;

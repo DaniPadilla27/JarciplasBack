@@ -38,17 +38,79 @@ const obtenerUsuarioPorId = async (req, res) => {
   }
 };
 
+// const crearUsuario = async (req, res) => { 
+//   const { Nombre, Correo, Contraseña, Telefono, pregunta_secreta, respuesta_secreta, id_tipo_usuario } = req.body;
+
+//   try {
+//     if (!Nombre || !Correo || !Contraseña || !Telefono || !pregunta_secreta || !respuesta_secreta) {
+//       return res.status(400).json({ message: 'Todos los campos son requeridos.' });
+//     }
+
+//     // Sanitización y validación de entradas
+//     const sanitizedNombre = validator.escape(Nombre);
+//     const sanitizedCorreo = validator.normalizeEmail(Correo);
+//     const sanitizedTelefono = validator.escape(Telefono);
+//     const sanitizedRespuestaSecreta = validator.escape(respuesta_secreta);
+    
+//     if (!validator.isEmail(sanitizedCorreo)) {
+//       return res.status(400).json({ message: 'Correo electrónico no válido.' });
+//     }
+
+//     // Verificar si el correo ya existe en la base de datos
+//     const usuarioExistente = await Usuario.findOne({ where: { Correo: sanitizedCorreo } });
+//     if (usuarioExistente) {
+//       return res.status(400).json({ message: 'El correo ya está registrado. Por favor, usa otro correo.' });
+//     }
+
+//     // Hash de la contraseña
+//     const saltRounds = 10;
+//     const hashedContraseña = await bcrypt.hash(Contraseña, saltRounds);
+
+//     const id_sesion = generarIdSesion();
+//     const secret = speakeasy.generateSecret({ length: 20 });
+//     const mfaSecret = secret.base32;
+
+//     res.cookie('sessionId', id_sesion, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: 'Strict',
+//       maxAge: 24 * 60 * 60 * 1000
+//     });
+
+//     // Si `id_tipo_usuario` no se proporciona, asignar 2 por defecto
+//     const nuevoUsuario = await Usuario.create({
+//       Nombre: sanitizedNombre,
+//       Correo: sanitizedCorreo,
+//       Contraseña: hashedContraseña,
+//       Telefono: sanitizedTelefono,
+//       pregunta_secreta,
+//       respuesta_secreta: sanitizedRespuestaSecreta,
+//       Intentos_contraseña: 0,
+//       id_sesion,
+//       id_tipo_usuario: id_tipo_usuario || 4  
+//     });
+
+//     res.status(200).json(nuevoUsuario);
+//   } catch (error) {
+//     logger.error('Error al crear el usuario:', error);
+//     res.status(500).json({ message: 'Error interno al crear el usuario' });
+//   }
+// };
+
+
 const crearUsuario = async (req, res) => { 
-  const { Nombre, Correo, Contraseña, id_tipo_usuario } = req.body;
+  const { Nombre, Correo, Contraseña, Telefono, pregunta_secreta, respuesta_secreta, id_tipo_usuario } = req.body;
 
   try {
-    if (!Nombre || !Correo || !Contraseña) {
+    if (!Nombre || !Correo || !Contraseña || !Telefono || !pregunta_secreta || !respuesta_secreta) {
       return res.status(400).json({ message: 'Todos los campos son requeridos.' });
     }
 
     // Sanitización y validación de entradas
     const sanitizedNombre = validator.escape(Nombre);
     const sanitizedCorreo = validator.normalizeEmail(Correo);
+    const sanitizedTelefono = validator.escape(Telefono);
+    const sanitizedRespuestaSecreta = validator.escape(respuesta_secreta);
     
     if (!validator.isEmail(sanitizedCorreo)) {
       return res.status(400).json({ message: 'Correo electrónico no válido.' });
@@ -58,6 +120,12 @@ const crearUsuario = async (req, res) => {
     const usuarioExistente = await Usuario.findOne({ where: { Correo: sanitizedCorreo } });
     if (usuarioExistente) {
       return res.status(400).json({ message: 'El correo ya está registrado. Por favor, usa otro correo.' });
+    }
+
+    // Verificar si el teléfono ya está registrado
+    const telefonoExistente = await Usuario.findOne({ where: { Telefono: sanitizedTelefono } });
+    if (telefonoExistente) {
+      return res.status(400).json({ message: 'El número de teléfono ya está registrado. Por favor, usa otro número.' });
     }
 
     // Hash de la contraseña
@@ -80,6 +148,9 @@ const crearUsuario = async (req, res) => {
       Nombre: sanitizedNombre,
       Correo: sanitizedCorreo,
       Contraseña: hashedContraseña,
+      Telefono: sanitizedTelefono,
+      pregunta_secreta,
+      respuesta_secreta: sanitizedRespuestaSecreta,
       Intentos_contraseña: 0,
       id_sesion,
       id_tipo_usuario: id_tipo_usuario || 4  
@@ -320,6 +391,63 @@ const obtenerPerfil = async (req, res) => {
 };
 
 
+const recuperarConPreguntaSecreta = async (req, res) => {
+  const { Telefono, pregunta_secreta, respuesta_secreta, nuevaContraseña } = req.body;
+
+  try {
+    if (!Telefono) {
+      return res.status(400).json({ message: "El número de teléfono es requerido." });
+    }
+
+    // Buscar usuario por teléfono
+    const usuario = await Usuario.findOne({ where: { Telefono } });
+
+    if (!usuario) {
+      return res.status(404).json({ message: "El número de teléfono no está registrado." });
+    }
+
+    // Paso 1: Si solo envió el teléfono, devolvemos la pregunta secreta
+    if (!pregunta_secreta) {
+      return res.status(200).json({ pregunta_secreta: usuario.pregunta_secreta });
+    }
+
+    // Paso 2: Verificar que la pregunta seleccionada coincida
+    if (usuario.pregunta_secreta !== pregunta_secreta) {
+      return res.status(400).json({ message: "La pregunta secreta no coincide con la registrada." });
+    }
+
+    // Paso 3: Si no hay respuesta aún, espera la respuesta secreta
+    if (!respuesta_secreta) {
+      return res.status(200).json({ message: "Ahora ingresa la respuesta secreta." });
+    }
+
+    // Paso 4: Verificar que la respuesta ingresada coincida con la registrada
+    if (usuario.respuesta_secreta !== respuesta_secreta) {
+      return res.status(400).json({ message: "La respuesta secreta no coincide." });
+    }
+
+    // Paso 5: Si la respuesta es correcta, permitir cambiar la contraseña
+    if (!nuevaContraseña) {
+      return res.status(200).json({ message: "Respuesta correcta. Ahora puedes ingresar una nueva contraseña." });
+    }
+
+    // Hash de la nueva contraseña antes de guardarla
+    const saltRounds = 10;
+    const hashedContraseña = await bcrypt.hash(nuevaContraseña, saltRounds);
+
+    // Actualizar la contraseña en la base de datos
+    await usuario.update({ Contraseña: hashedContraseña });
+
+    return res.status(200).json({ message: "Contraseña actualizada correctamente." });
+
+  } catch (error) {
+    console.error("Error en la recuperación de contraseña:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
+
+
+
 module.exports = {
   obtenerUsuarios,
   obtenerUsuarioPorId,
@@ -329,5 +457,6 @@ module.exports = {
   cambiarRolUsuario,
   generarMFAQR,
   verificarTokenMFA,
-  obtenerPerfil
+  obtenerPerfil,
+  recuperarConPreguntaSecreta
 };

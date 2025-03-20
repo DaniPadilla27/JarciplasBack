@@ -27,7 +27,7 @@ const Usuario = sequelize.define('Usuario', {
   },
   Telefono: {
     type: DataTypes.STRING(15),
-    allowNull: true,
+    allowNull: false, // Ahora es obligatorio
   },
   Contraseña: {
     type: DataTypes.STRING(255),
@@ -58,6 +58,20 @@ const Usuario = sequelize.define('Usuario', {
   codigo_recuperacion_expiracion: {
     type: DataTypes.DATE,
     allowNull: true,
+  },
+  pregunta_secreta: {
+    type: DataTypes.ENUM(
+      '¿Cuál es el nombre de tu primera mascota?',
+      '¿Cuál es el nombre de tu escuela primaria?',
+      '¿Cuál es el nombre de tu mejor amigo de la infancia?',
+      '¿En qué ciudad naciste?',
+      '¿Cuál es el nombre de tu película favorita?'
+    ),
+    allowNull: false, // Ahora es obligatorio
+  },
+  respuesta_secreta: {
+    type: DataTypes.STRING(255),
+    allowNull: false, // Ahora es obligatorio
   },
 }, {
   tableName: 'tbl_usuarios',
