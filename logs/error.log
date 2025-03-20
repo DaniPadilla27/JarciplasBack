@@ -44,3 +44,5 @@
 2025-03-19 09:19:07 [ERROR]: Error al obtener los productos: Cannot create property 'Symbol(level)' on string 'Iniciando consulta a la base de datos...'
 2025-03-19 09:20:30 [ERROR]: Error al obtener los productos: Cannot create property 'Symbol(level)' on string 'Iniciando consulta a la base de datos...'
 2025-03-19 09:22:08 [ERROR]: Error al obtener los productos: Cannot create property 'Symbol(level)' on string 'Iniciando consulta a la base de datos...'
+2025-03-20 00:17:16 [ERROR]: Error al iniciar sesión del usuario: Unknown column 'codigo_recuperacion' in 'field list'
+2025-03-20 00:17:23 [ERROR]: Error al iniciar sesión del usuario: Unknown column 'codigo_recuperacion' in 'field list'

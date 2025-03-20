@@ -23,6 +23,7 @@ const Recuperacion = require('./routes/recuperacionRoutes');
 const AdmRecuperacion = require('./routes/adminRoutes');
 const cloudinary = require('./routes/cloudinary');
 const productos = require('./routes/productoRouter');
+const carrito = require('./routes/carritoRouter');
 const logger = require('./utils/logger');
 
 const helmet = require('helmet'); // Importa Helmet
@@ -93,6 +94,7 @@ app.use('/api', AdmRecuperacion);
 app.use('/api', cloudinary);
 app.use('/api', productos);
 app.use('/api', productos);
+app.use('/api', carrito);
 
 // Conexión a la base de datos y arranque del servidor
 sequelize.sync().then(() => {
