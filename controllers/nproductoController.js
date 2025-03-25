@@ -1,24 +1,22 @@
 const Producto = require('../models/productoModel');
-const logger = require('../utils/logger'); // Importar el logger
-
+const logger = require('../utils/logger');
 
 const crearProducto = async (req, res) => {
-  const { nombre_producto, precio, categoria, descripcion } = req.body;
-  const imagen = req.file ? req.file.buffer : null; // Captura la imagen
+  const { nombre_producto, precio, categoria, descripcion, stock } = req.body;
+  const imagen = req.file ? req.file.buffer : null;
 
-  // Validar que todos los campos estén presentes
-  if (!nombre_producto || !precio || !categoria || !imagen || !descripcion) {
+  if (!nombre_producto || !precio || !categoria || !imagen || !descripcion || stock === undefined) {
     return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
   }
 
   try {
-    // Guarda el producto en la base de datos
     const nuevoProducto = await Producto.create({
       nombre_producto,
       precio,
       categoria,
-      imagen, // Guarda la imagen como BLOB
+      imagen,
       descripcion,
+      stock,
     });
 
     res.status(201).json({
@@ -26,14 +24,15 @@ const crearProducto = async (req, res) => {
       producto: nuevoProducto,
     });
   } catch (error) {
-    conloggersole.error('Error al crear el producto:', error);
+    console.error('Error al crear el producto:', error);
     res.status(500).json({ mensaje: 'Error al guardar el producto' });
   }
 };
+
 const actualizarProducto = async (req, res) => {
   const { id } = req.params;
-  const { nombre_producto, precio, categoria, descripcion } = req.body;
-  const imagen = req.file ? req.file.buffer : null; // Captura la nueva imagen si se proporciona
+  const { nombre_producto, precio, categoria, descripcion, stock } = req.body;
+  const imagen = req.file ? req.file.buffer : null;
 
   try {
     const producto = await Producto.findByPk(id);
@@ -41,16 +40,16 @@ const actualizarProducto = async (req, res) => {
       return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
 
-    // Actualiza los campos del producto
     producto.nombre_producto = nombre_producto || producto.nombre_producto;
     producto.precio = precio || producto.precio;
     producto.categoria = categoria || producto.categoria;
     producto.descripcion = descripcion || producto.descripcion;
+    producto.stock = stock !== undefined ? stock : producto.stock;
     if (imagen) {
-      producto.imagen = imagen; // Solo actualiza la imagen si se proporciona una nueva
+      producto.imagen = imagen;
     }
 
-    await producto.save(); // Guarda los cambios en la base de datos
+    await producto.save();
 
     res.status(200).json({
       mensaje: 'Producto actualizado exitosamente',
@@ -62,50 +61,36 @@ const actualizarProducto = async (req, res) => {
   }
 };
 
-
-
-
-
-
 const mostrarProductos = async (req, res) => {
   try {
-    logger.info('Iniciando consulta a la base de datos...'); // Usar 'info' en lugar de 'log'
     const productos = await Producto.findAll({
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen','descripcion'],
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
     });
-
-    if (!productos.length) {
-      logger.warn('No se encontraron productos.'); // Usar 'warn' para mensajes de advertencia
-      return res.status(404).json({ mensaje: 'No hay productos disponibles.' });
-    }
 
     const productosConImagen = productos.map((producto) => ({
       id: producto.id,
       nombre_producto: producto.nombre_producto,
       precio: producto.precio,
       categoria: producto.categoria,
-      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null, 
       descripcion: producto.descripcion,
-
+      stock: producto.stock,
+      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
     }));
 
-    logger.info('Productos obtenidos:', productosConImagen); // Usar 'info' en lugar de 'log'
     res.status(200).json({
       mensaje: 'Productos obtenidos correctamente',
       productos: productosConImagen,
     });
   } catch (error) {
-    logger.error('Error al obtener los productos:', error); // Asegúrate de que 'error' esté definido
-    res.status(500).json({
-      mensaje: 'Error al obtener los productos, inténtelo nuevamente más tarde.',
-    });
+    console.error('Error al obtener los productos:', error);
+    res.status(500).json({ mensaje: 'Error al obtener los productos' });
   }
 };
 
 const obtenerProductosPorCategoria = async (req, res) => {
   try {
     const productos = await Producto.findAll({
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion'],
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
       where: Producto.sequelize.literal(`
         id IN (
           SELECT MIN(p2.id)
@@ -115,29 +100,29 @@ const obtenerProductosPorCategoria = async (req, res) => {
       `),
     });
 
-    // Convertir la imagen a Base64
     const productosConImagen = productos.map((producto) => ({
       id: producto.id,
       nombre_producto: producto.nombre_producto,
       precio: producto.precio,
       categoria: producto.categoria,
       descripcion: producto.descripcion,
-      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null, 
+      stock: producto.stock,
+      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
     }));
 
-    // 🔍 Verificar en la consola del backend si las imágenes están presentes
     logger.log('Productos obtenidos:', productosConImagen.map(p => ({
       id: p.id,
       nombre: p.nombre_producto,
       imagen: p.imagen ? '✅ Imagen presente' : '❌ Sin imagen'
     })));
 
-    res.json({ productos: productosConImagen }); 
+    res.json({ productos: productosConImagen });
   } catch (error) {
     logger.error('Error en la consulta:', error);
     res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message });
   }
 };
+
 const eliminarProducto = async (req, res) => {
   const { id } = req.params;
 
@@ -160,8 +145,8 @@ const eliminarProducto = async (req, res) => {
 
 const editarProducto = async (req, res) => {
   const { id } = req.params;
-  const { nombre_producto, precio, categoria, descripcion } = req.body;
-  const imagen = req.file ? req.file.buffer : null; // Captura la nueva imagen si se proporciona
+  const { nombre_producto, precio, categoria, descripcion, stock } = req.body;
+  const imagen = req.file ? req.file.buffer : null;
 
   try {
     const producto = await Producto.findByPk(id);
@@ -169,13 +154,13 @@ const editarProducto = async (req, res) => {
       return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
 
-    // Actualiza los campos del producto
     producto.nombre_producto = nombre_producto || producto.nombre_producto;
     producto.precio = precio || producto.precio;
     producto.categoria = categoria || producto.categoria;
     producto.descripcion = descripcion || producto.descripcion;
+    producto.stock = stock !== undefined ? stock : producto.stock;
     if (imagen) {
-      producto.imagen = imagen; // Actualiza la imagen solo si se proporciona una nueva
+      producto.imagen = imagen;
     }
 
     await producto.save();
@@ -190,13 +175,12 @@ const editarProducto = async (req, res) => {
   }
 };
 
-
 const obtenerProductoPorId = async (req, res) => {
   const { id } = req.params;
 
   try {
     const producto = await Producto.findByPk(id, {
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion'],
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
     });
 
     if (!producto) {
@@ -211,6 +195,7 @@ const obtenerProductoPorId = async (req, res) => {
         precio: producto.precio,
         categoria: producto.categoria,
         descripcion: producto.descripcion,
+        stock: producto.stock,
         imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
       },
     });
@@ -220,16 +205,12 @@ const obtenerProductoPorId = async (req, res) => {
   }
 };
 
-
-
-
-
 module.exports = {
-    crearProducto,
-    mostrarProductos,
-    obtenerProductosPorCategoria,
-    editarProducto,
-    eliminarProducto,
-    actualizarProducto,
-    obtenerProductoPorId
+  crearProducto,
+  mostrarProductos,
+  obtenerProductosPorCategoria,
+  editarProducto,
+  eliminarProducto,
+  actualizarProducto,
+  obtenerProductoPorId
 };
