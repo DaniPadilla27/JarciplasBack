@@ -1,6 +1,6 @@
 const Producto = require('../models/productoModel');
 const logger = require('../utils/logger');
-
+const Sequelize = require('sequelize');
 const crearProducto = async (req, res) => {
   const { nombre_producto, precio, categoria, descripcion, stock } = req.body;
   const imagen = req.file ? req.file.buffer : null;
@@ -227,6 +227,42 @@ const obtenerCategorias = async (req, res) => {
 };
 
 
+const obtenerProductosDeCategoria = async (req, res) => {
+  const { categoria } = req.params;
+  const categoriaModificada = categoria.replace(/_/g, ' ');
+
+  try {
+    const productos = await Producto.findAll({
+      where: Sequelize.where(
+        Sequelize.fn('LOWER', Sequelize.col('categoria')),
+        Sequelize.fn('LOWER', categoriaModificada)
+      ),
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
+    });
+
+    const productosConImagen = productos.map((producto) => ({
+      id: producto.id,
+      nombre_producto: producto.nombre_producto,
+      precio: producto.precio,
+      categoria: producto.categoria,
+      descripcion: producto.descripcion,
+      stock: producto.stock,
+      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
+    }));
+
+    res.status(200).json({
+      mensaje: 'Productos obtenidos correctamente',
+      productos: productosConImagen,
+    });
+  } catch (error) {
+    console.error('Error al obtener los productos por categoría:', error);
+    res.status(500).json({ mensaje: 'Error al obtener los productos' });
+  }
+};
+
+
+
+
 
 module.exports = {
   crearProducto,
@@ -236,5 +272,6 @@ module.exports = {
   eliminarProducto,
   actualizarProducto,
   obtenerProductoPorId,
-  obtenerCategorias
+  obtenerCategorias,
+  obtenerProductosDeCategoria
 };
