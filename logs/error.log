@@ -52,3 +52,5 @@
 2025-03-19 23:26:37 [ERROR]: Error al crear el usuario: Op is not defined
 2025-03-21 13:58:30 [ERROR]: Error al sincronizar la base de datos: 
 2025-03-24 23:18:04 [ERROR]: Error al sincronizar la base de datos: 
+2025-03-25 01:17:19 [ERROR]: Error en la consulta: Unknown column 'stock' in 'field list'
+2025-03-25 01:17:19 [ERROR]: Error en la consulta: Unknown column 'stock' in 'field list'
