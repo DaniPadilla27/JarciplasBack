@@ -28,6 +28,11 @@ const Productos = sequelize.define('productos', {
     type: DataTypes.TEXT,
     allowNull: false,
   },
+  stock: { // Nuevo campo agregado
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0, // Establece el valor por defecto en 0
+  }
 }, {
   timestamps: false,
   tableName: 'tbl_productos',
