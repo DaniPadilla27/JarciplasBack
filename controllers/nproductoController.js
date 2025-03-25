@@ -220,7 +220,25 @@ const obtenerProductoPorId = async (req, res) => {
   }
 };
 
+const obtenerCategorias = async (req, res) => {
+  try {
+    const categorias = await Producto.findAll({
+      attributes: [
+        [Producto.sequelize.fn('DISTINCT', Producto.sequelize.col('categoria')), 'categoria']
+      ],
+    });
 
+    const listaCategorias = categorias.map(categoria => categoria.categoria);
+
+    res.status(200).json({
+      mensaje: 'Categorías obtenidas correctamente',
+      categorias: listaCategorias,
+    });
+  } catch (error) {
+    console.error('Error al obtener las categorías:', error);
+    res.status(500).json({ mensaje: 'Error al obtener las categorías' });
+  }
+};
 
 
 
@@ -231,5 +249,6 @@ module.exports = {
     editarProducto,
     eliminarProducto,
     actualizarProducto,
-    obtenerProductoPorId
+    obtenerProductoPorId,
+    obtenerCategorias
 };
