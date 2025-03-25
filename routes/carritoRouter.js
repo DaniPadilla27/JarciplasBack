@@ -4,6 +4,7 @@ const {
     obtenerCarritoPorUsuario,
     eliminarDelCarrito,
     actualizarCarrito,
+    comprarCarrito, // Asegúrate de importar la función
 } = require('../controllers/carrito');
 const router = express.Router();
 
@@ -18,5 +19,8 @@ router.delete('/carrito/:id_carrito', eliminarDelCarrito);
 
 // Ruta para actualizar la cantidad de un producto en el carrito
 router.put('/carrito/:id_carrito', actualizarCarrito);
+
+// Ruta para comprar el carrito de un usuario
+router.post('/comprar/:id_usuario', comprarCarrito);
 
 module.exports = router;
