@@ -172,4 +172,37 @@ const actualizarCarrito = async (req, res) => {
     }
 };
 
-module.exports = { agregarAlCarrito, obtenerCarritoPorUsuario ,eliminarDelCarrito, actualizarCarrito };
+const comprarCarrito = async (req, res) => {
+    const { id_usuario } = req.params; // Obtener id_usuario desde los parámetros de la URL
+
+    try {
+        // Insertar los productos del carrito en la tabla de ventas
+        await sequelize.query(
+            `INSERT INTO tbl_ventas (id_usuario, id_producto, cantidad, precio_unitario, precio_total, fecha_venta)
+             SELECT id_usuario, id_producto, cantidad, precio_unitario, precio_total, NOW()
+             FROM tbl_carrito_compras
+             WHERE id_usuario = :id_usuario AND estado = 'pendiente'`,
+            {
+                replacements: { id_usuario },
+                type: QueryTypes.INSERT,
+            }
+        );
+
+        // Eliminar los productos del carrito
+        await sequelize.query(
+            `DELETE FROM tbl_carrito_compras 
+             WHERE id_usuario = :id_usuario AND estado = 'pendiente'`,
+            {
+                replacements: { id_usuario },
+                type: QueryTypes.DELETE,
+            }
+        );
+
+        res.status(200).json({ message: "Compra realizada con éxito" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al realizar la compra" });
+    }
+};
+
+module.exports = { agregarAlCarrito, obtenerCarritoPorUsuario ,eliminarDelCarrito, actualizarCarrito ,comprarCarrito};
