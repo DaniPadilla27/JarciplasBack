@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
+// const Categoria = require('./categoriasModel');
 
 const Productos = sequelize.define('productos', {
   id: {
@@ -16,8 +17,8 @@ const Productos = sequelize.define('productos', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
-  categoria: {
-    type: DataTypes.STRING(100),
+  categoria_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   imagen: {
