@@ -767,3 +767,5 @@
 2025-03-25 02:50:08 [INFO]: Servidor corriendo en el puerto 3001
 2025-03-25 02:50:27 [INFO]: Servidor corriendo en el puerto 3001
 2025-03-25 02:50:36 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-25 23:20:53 [ERROR]: Error al sincronizar la base de datos: 
+2025-03-25 23:21:46 [INFO]: Servidor corriendo en el puerto 3001
