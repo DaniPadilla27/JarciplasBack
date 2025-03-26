@@ -1,19 +1,36 @@
 const Producto = require('../models/productoModel');
 const logger = require('../utils/logger');
-const Sequelize = require('sequelize');
-const crearProducto = async (req, res) => {
-  const { nombre_producto, precio, categoria, descripcion, stock } = req.body;
-  const imagen = req.file ? req.file.buffer : null;
+const Categoria = require('../models/categoriasModel');
 
-  if (!nombre_producto || !precio || !categoria || !imagen || !descripcion || stock === undefined) {
-    return res.status(400).json({ mensaje: 'Todos los campos son obligatorios' });
+
+
+const crearProducto = async (req, res) => {
+  const { nombre_producto, precio, categoria_id, descripcion, stock } = req.body;
+  const imagen = req.file ? req.file.buffer : null;
+  console.table(req.body)
+  // Validación básica
+  if (!nombre_producto || !precio || !categoria_id || !descripcion || stock === undefined) {
+    return res.status(400).json({ mensaje: 'Los campos nombre_producto, precio, categoria_id, descripcion y stock son obligatorios' });
   }
 
+  if (isNaN(precio) || precio <= 0) {
+    return res.status(400).json({ mensaje: 'Precio inválido' });
+  }
+  let idcategoria = parseInt(categoria_id);
   try {
+    // Buscar la categoría por ID
+    const categoria = await Categoria.findOne({ where: { id: idcategoria } });
+    if (!categoria) {
+      return res.status(404).json({ mensaje: 'Categoría no encontrada' });
+    } else {
+      console.log(categoria)
+    }
+
+    // Crear el producto
     const nuevoProducto = await Producto.create({
       nombre_producto,
       precio,
-      categoria,
+      categoria_id: categoria.id, // Usar el nombre de la categoría
       imagen,
       descripcion,
       stock,
@@ -28,23 +45,40 @@ const crearProducto = async (req, res) => {
     res.status(500).json({ mensaje: 'Error al guardar el producto' });
   }
 };
-
 const actualizarProducto = async (req, res) => {
   const { id } = req.params;
-  const { nombre_producto, precio, categoria, descripcion, stock } = req.body;
+  const { nombre_producto, precio, categoria_id, descripcion, stock } = req.body;
   const imagen = req.file ? req.file.buffer : null;
 
+  // Validación básica
+  if (!nombre_producto || !precio || !categoria_id || !descripcion || stock === undefined) {
+    return res.status(400).json({ mensaje: 'Los campos nombre_producto, precio, categoria_id, descripcion y stock son obligatorios' });
+  }
+
+  if (isNaN(precio) || precio <= 0) {
+    return res.status(400).json({ mensaje: 'Precio inválido' });
+  }
+
+  let idcategoria = parseInt(categoria_id);
   try {
+    // Buscar la categoría por ID
+    const categoria = await Categoria.findOne({ where: { id: idcategoria } });
+    if (!categoria) {
+      return res.status(404).json({ mensaje: 'Categoría no encontrada' });
+    }
+
+    // Buscar el producto por ID
     const producto = await Producto.findByPk(id);
     if (!producto) {
       return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
 
-    producto.nombre_producto = nombre_producto || producto.nombre_producto;
-    producto.precio = precio || producto.precio;
-    producto.categoria = categoria || producto.categoria;
-    producto.descripcion = descripcion || producto.descripcion;
-    producto.stock = stock !== undefined ? stock : producto.stock;
+    // Actualizar los campos del producto
+    producto.nombre_producto = nombre_producto;
+    producto.precio = precio;
+    producto.categoria_id = categoria.id;
+    producto.descripcion = descripcion;
+    producto.stock = stock;
     if (imagen) {
       producto.imagen = imagen;
     }
@@ -61,17 +95,23 @@ const actualizarProducto = async (req, res) => {
   }
 };
 
+
 const mostrarProductos = async (req, res) => {
   try {
     const productos = await Producto.findAll({
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria_id', 'imagen', 'descripcion', 'stock'],
+      include: [{
+        model: Categoria,
+        as: 'categoria',
+        attributes: ['nombre']
+      }]
     });
 
     const productosConImagen = productos.map((producto) => ({
       id: producto.id,
       nombre_producto: producto.nombre_producto,
       precio: producto.precio,
-      categoria: producto.categoria,
+      categoria: producto.categoria ? producto.categoria.nombre : 'Sin categoría',
       descripcion: producto.descripcion,
       stock: producto.stock,
       imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
@@ -87,15 +127,21 @@ const mostrarProductos = async (req, res) => {
   }
 };
 
+
 const obtenerProductosPorCategoria = async (req, res) => {
   try {
     const productos = await Producto.findAll({
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
+      attributes: ['id', 'nombre_producto', 'precio', 'categoria_id', 'imagen', 'descripcion', 'stock'],
+      include: [{
+        model: Categoria,
+        as: 'categoria',
+        attributes: ['nombre']
+      }],
       where: Producto.sequelize.literal(`
         id IN (
           SELECT MIN(p2.id)
           FROM tbl_productos p2
-          GROUP BY p2.categoria
+          GROUP BY p2.categoria_id
         )
       `),
     });
@@ -104,27 +150,32 @@ const obtenerProductosPorCategoria = async (req, res) => {
       id: producto.id,
       nombre_producto: producto.nombre_producto,
       precio: producto.precio,
-      categoria: producto.categoria,
+      categoria: producto.categoria ? producto.categoria.nombre : 'Sin categoría',
       descripcion: producto.descripcion,
       stock: producto.stock,
       imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
     }));
 
-    logger.log('Productos obtenidos:', productosConImagen.map(p => ({
+    console.log('Productos obtenidos:', productosConImagen.map(p => ({
       id: p.id,
       nombre: p.nombre_producto,
       imagen: p.imagen ? '✅ Imagen presente' : '❌ Sin imagen'
     })));
 
-    res.json({ productos: productosConImagen });
+    res.status(200).json({ productos: productosConImagen });
   } catch (error) {
-    logger.error('Error en la consulta:', error);
+    console.error('Error en la consulta:', error);
     res.status(500).json({ mensaje: 'Error al obtener productos', error: error.message });
   }
 };
 
+
 const eliminarProducto = async (req, res) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ mensaje: 'ID de producto inválido' });
+  }
 
   try {
     const producto = await Producto.findByPk(id);
@@ -132,6 +183,8 @@ const eliminarProducto = async (req, res) => {
       return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
 
+    console.log(`Eliminando producto: ${producto.nombre_producto} (ID: ${id})`);
+    
     await producto.destroy();
 
     res.status(200).json({
@@ -139,9 +192,10 @@ const eliminarProducto = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al eliminar el producto:', error);
-    res.status(500).json({ mensaje: 'Error al eliminar el producto' });
+    res.status(500).json({ mensaje: 'Error al eliminar el producto', error: error.message });
   }
 };
+
 
 const editarProducto = async (req, res) => {
   const { id } = req.params;
@@ -176,7 +230,11 @@ const editarProducto = async (req, res) => {
 };
 
 const obtenerProductoPorId = async (req, res) => {
-  const { id } = req.params;
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ mensaje: 'ID de producto inválido' });
+  }
 
   try {
     const producto = await Producto.findByPk(id, {
@@ -186,6 +244,8 @@ const obtenerProductoPorId = async (req, res) => {
     if (!producto) {
       return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
+
+    console.log('Producto encontrado:', producto.toJSON());
 
     res.status(200).json({
       mensaje: 'Producto obtenido correctamente',
@@ -201,9 +261,10 @@ const obtenerProductoPorId = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al obtener el producto:', error);
-    res.status(500).json({ mensaje: 'Error al obtener el producto' });
+    res.status(500).json({ mensaje: 'Error al obtener el producto', error: error.message });
   }
 };
+
 
 const obtenerCategorias = async (req, res) => {
   try {
@@ -211,9 +272,16 @@ const obtenerCategorias = async (req, res) => {
       attributes: [
         [Producto.sequelize.fn('DISTINCT', Producto.sequelize.col('categoria')), 'categoria']
       ],
+      raw: true, // Evita estructura innecesaria en el resultado
     });
 
+    if (!categorias || categorias.length === 0) {
+      return res.status(404).json({ mensaje: 'No se encontraron categorías' });
+    }
+
     const listaCategorias = categorias.map(categoria => categoria.categoria);
+
+    console.log('Categorías obtenidas:', listaCategorias);
 
     res.status(200).json({
       mensaje: 'Categorías obtenidas correctamente',
@@ -221,44 +289,10 @@ const obtenerCategorias = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al obtener las categorías:', error);
-    res.status(500).json({ mensaje: 'Error al obtener las categorías' });
-  }
-  
-};
-
-
-const obtenerProductosDeCategoria = async (req, res) => {
-  const { categoria } = req.params;
-  const categoriaModificada = categoria.replace(/_/g, ' ');
-
-  try {
-    const productos = await Producto.findAll({
-      where: Sequelize.where(
-        Sequelize.fn('LOWER', Sequelize.col('categoria')),
-        Sequelize.fn('LOWER', categoriaModificada)
-      ),
-      attributes: ['id', 'nombre_producto', 'precio', 'categoria', 'imagen', 'descripcion', 'stock'],
-    });
-
-    const productosConImagen = productos.map((producto) => ({
-      id: producto.id,
-      nombre_producto: producto.nombre_producto,
-      precio: producto.precio,
-      categoria: producto.categoria,
-      descripcion: producto.descripcion,
-      stock: producto.stock,
-      imagen: producto.imagen ? `data:image/jpeg;base64,${producto.imagen.toString('base64')}` : null,
-    }));
-
-    res.status(200).json({
-      mensaje: 'Productos obtenidos correctamente',
-      productos: productosConImagen,
-    });
-  } catch (error) {
-    console.error('Error al obtener los productos por categoría:', error);
-    res.status(500).json({ mensaje: 'Error al obtener los productos' });
+    res.status(500).json({ mensaje: 'Error al obtener las categorías', error: error.message });
   }
 };
+
 
 
 
@@ -272,6 +306,6 @@ module.exports = {
   eliminarProducto,
   actualizarProducto,
   obtenerProductoPorId,
-  obtenerCategorias,
-  obtenerProductosDeCategoria
+  obtenerCategorias
+
 };
