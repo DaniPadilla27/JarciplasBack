@@ -370,16 +370,45 @@ const obtenerCategoriasnuevas = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al obtener las categorías:', error);
-    res.status(500).json({ mensaje: 'Error al obtener las categorías', error: error.message });
+    res.status(500).json({ mensaje: 'Error al obtener las categorías', error: error.message });
+  }
+};
+const productosmasvendidos = async (req, res) => {
+  const { categoria_id } = req.params; // Obtener el ID de la categoría desde los parámetros de la URL
+
+  try {
+    const productos = await Categoria.sequelize.query(`
+      SELECT 
+          p.id, 
+          p.nombre_producto, 
+          p.precio, 
+          p.stock, 
+          c.nombre_categoria, 
+          SUM(v.cantidad) AS total_vendido
+      FROM tbl_productos p
+      JOIN tbl_categorias c ON p.categoria_id = c.id
+      JOIN tbl_ventas v ON p.id = v.id_producto
+      WHERE p.categoria_id = :categoria_id
+      GROUP BY p.id, p.nombre_producto, p.precio, p.stock, c.nombre_categoria
+      ORDER BY total_vendido DESC;
+    `, {
+      replacements: { categoria_id }, // Reemplazar el parámetro en la consulta
+      type: Categoria.sequelize.QueryTypes.SELECT,
+    });
+
+    if (!productos || productos.length === 0) {
+      return res.status(404).json({ mensaje: 'No se encontraron productos para esta categoría' });
+    }
+
+    res.status(200).json({
+      mensaje: 'Productos obtenidos correctamente',
+      productos,
+    });
+  } catch (error) {
+    console.error('Error al obtener los productos:', error);
+    res.status(500).json({ mensaje: 'Error al obtener los productos', error: error.message });
   }
 };
-
-
-
-
-
-
-
 
 const obtenerProductosPorCategoriaDeProducto = async (req, res) => {
   const { id } = req.params; // Aquí `id` será el `categoria_id`
