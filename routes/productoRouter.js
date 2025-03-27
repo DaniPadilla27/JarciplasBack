@@ -12,7 +12,8 @@ router.put('/editar/:id',NproductoControllers.editarProducto);
 router.delete('/eliminar/:id',NproductoControllers.eliminarProducto);
 router.put('/productos/:id',NproductoControllers.actualizarProducto);
 router.get('/producto/:id', NproductoControllers.obtenerProductoPorId);
-//router.get('/categorias', NproductoControllers.obtenerCategorias);
+router.get('/categoriascatalogo', NproductoControllers.obtenerCategoriasdecatalogo);
 router.get('/categorias', NproductoControllers.obtenerCategoriasConId);
+router.get('/categoriasclik', NproductoControllers.obtenerProductosPorCategoriaDeProducto);
 
 module.exports = router;
