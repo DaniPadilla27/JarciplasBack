@@ -1,4 +1,3 @@
-// filepath: c:\Users\paca2\OneDrive\Documentos\Jarciplas\bak\models\categoriasModel.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 

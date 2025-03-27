@@ -17,5 +17,8 @@ router.get('/prediccion', NproductoControllers.obtenerCategoriasConId);
 router.get('/productosmasvendidos/:categoria_id', NproductoControllers.productosmasvendidos );
 router.get('/categorias', NproductoControllers.obtenerCategoriasnuevas);
 
+router.get('/categoriascatalogo', NproductoControllers.obtenerCategoriasdecatalogo);
+router.get('/categorias', NproductoControllers.obtenerCategoriasConId);
+router.get('/productos/categoria/:id', NproductoControllers.obtenerProductosPorCategoriaDeProducto);
 
 module.exports = router;

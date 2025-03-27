@@ -1,9 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-// const Categoria = require('./categoriasModel');
 
 const Producto = sequelize.define('tbl_productos', {
-
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -23,17 +21,17 @@ const Producto = sequelize.define('tbl_productos', {
     allowNull: false,
   },
   imagen: {
-    type: DataTypes.BLOB('long'), // Cambia a STRING si prefieres usar URL
+    type: DataTypes.BLOB('long'), // Cambia a STRING si usas URL
     allowNull: false,
   },
   descripcion: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  stock: { // Nuevo campo agregado
+  stock: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 0, // Establece el valor por defecto en 0
+    defaultValue: 0,
   }
 }, {
   timestamps: false,
