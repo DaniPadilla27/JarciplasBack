@@ -190,22 +190,30 @@ const obtenerProductosPorCategoria = async (req, res) => {
 const eliminarProducto = async (req, res) => {
   const id = parseInt(req.params.id);
 
+  // Validar que el ID sea un número válido
   if (isNaN(id)) {
     return res.status(400).json({ mensaje: 'ID de producto inválido' });
   }
 
   try {
+    // Buscar el producto por ID
     const producto = await Producto.findByPk(id);
     if (!producto) {
       return res.status(404).json({ mensaje: 'Producto no encontrado' });
     }
 
-    console.log(`Eliminando producto: ${producto.nombre_producto} (ID: ${id})`);
-    
+    // Eliminar el producto
     await producto.destroy();
 
+    console.log(`Producto eliminado: ${producto.nombre_producto} (ID: ${id})`);
+
+    // Respuesta exitosa
     res.status(200).json({
       mensaje: 'Producto eliminado exitosamente',
+      producto: {
+        id: producto.id,
+        nombre_producto: producto.nombre_producto,
+      },
     });
   } catch (error) {
     console.error('Error al eliminar el producto:', error);
