@@ -14,6 +14,6 @@ router.put('/productos/:id',NproductoControllers.actualizarProducto);
 router.get('/producto/:id', NproductoControllers.obtenerProductoPorId);
 router.get('/categoriascatalogo', NproductoControllers.obtenerCategoriasdecatalogo);
 router.get('/categorias', NproductoControllers.obtenerCategoriasConId);
-router.get('/categoriasclik', NproductoControllers.obtenerProductosPorCategoriaDeProducto);
+router.get('/productos/categoria/:id', NproductoControllers.obtenerProductosPorCategoriaDeProducto);
 
 module.exports = router;

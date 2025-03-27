@@ -353,28 +353,27 @@ const obtenerCategoriasConId = async (req, res) => {
 
 
 
+
+
 const obtenerProductosPorCategoriaDeProducto = async (req, res) => {
-  const { id } = req.params; // ID del producto seleccionado
+  const { id } = req.params; // Aquí `id` será el `categoria_id`
+
+  console.log('Categoria ID recibido:', id);
 
   if (isNaN(id)) {
-    return res.status(400).json({ mensaje: 'ID de producto inválido' });
+    return res.status(400).json({ mensaje: 'ID de categoría inválido' });
   }
 
   try {
-    // Buscar el producto por ID
-    const producto = await Producto.findByPk(id, {
-      attributes: ['id', 'nombre_producto', 'categoria_id'], // Solo obtener los campos necesarios
-    });
-
-    if (!producto) {
-      return res.status(404).json({ mensaje: 'Producto no encontrado' });
-    }
-
-    // Obtener todos los productos de la misma categoría
+    // Buscar todos los productos que pertenezcan a la categoría
     const productos = await Producto.findAll({
-      where: { categoria_id: producto.categoria_id },
+      where: { categoria_id: id },
       attributes: ['id', 'nombre_producto', 'precio', 'imagen', 'descripcion', 'stock'],
     });
+
+    if (!productos || productos.length === 0) {
+      return res.status(404).json({ mensaje: 'No se encontraron productos para esta categoría' });
+    }
 
     // Convertir las imágenes BLOB a Base64 si existen
     const productosConImagen = productos.map((prod) => ({
@@ -387,7 +386,7 @@ const obtenerProductosPorCategoriaDeProducto = async (req, res) => {
     }));
 
     res.status(200).json({
-      mensaje: 'Productos de la misma categoría obtenidos correctamente',
+      mensaje: 'Productos de la categoría obtenidos correctamente',
       productos: productosConImagen,
     });
   } catch (error) {
