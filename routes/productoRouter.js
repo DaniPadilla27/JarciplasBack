@@ -13,6 +13,9 @@ router.delete('/eliminar/:id',NproductoControllers.eliminarProducto);
 router.put('/productos/:id',NproductoControllers.actualizarProducto);
 router.get('/producto/:id', NproductoControllers.obtenerProductoPorId);
 //router.get('/categorias', NproductoControllers.obtenerCategorias);
-router.get('/categorias', NproductoControllers.obtenerCategoriasConId);
+router.get('/prediccion', NproductoControllers.obtenerCategoriasConId);
+router.get('/productosmasvendidos/:categoria_id', NproductoControllers.productosmasvendidos );
+router.get('/categorias', NproductoControllers.obtenerCategoriasnuevas);
+
 
 module.exports = router;

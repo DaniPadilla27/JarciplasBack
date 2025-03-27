@@ -58,12 +58,14 @@ const obtenerCarritoPorUsuario = async (req, res) => {
                 c.id_usuario,
                 c.id_producto,
                 p.nombre_producto,
-                p.imagen,
+                 p.stock,
                 c.cantidad,
                 c.precio_unitario,
                 c.precio_total,
                 c.estado,
-                c.fecha_agregado
+                c.fecha_agregado,
+                p.imagen
+               
             FROM 
                 tbl_carrito_compras c
             JOIN 
@@ -176,29 +178,56 @@ const comprarCarrito = async (req, res) => {
     const { id_usuario } = req.params; // Obtener id_usuario desde los parámetros de la URL
 
     try {
-        // Insertar los productos del carrito en la tabla de ventas
-        await sequelize.query(
-            `INSERT INTO tbl_ventas (id_usuario, id_producto, cantidad, precio_unitario, precio_total, fecha_venta)
-             SELECT id_usuario, id_producto, cantidad, precio_unitario, precio_total, NOW()
-             FROM tbl_carrito_compras
-             WHERE id_usuario = :id_usuario AND estado = 'pendiente'`,
-            {
-                replacements: { id_usuario },
-                type: QueryTypes.INSERT,
-            }
-        );
+        // Iniciar una transacción para garantizar la consistencia de los datos
+        const transaction = await sequelize.transaction();
 
-        // Eliminar los productos del carrito
-        await sequelize.query(
-            `DELETE FROM tbl_carrito_compras 
-             WHERE id_usuario = :id_usuario AND estado = 'pendiente'`,
-            {
-                replacements: { id_usuario },
-                type: QueryTypes.DELETE,
-            }
-        );
+        try {
+            // Insertar los productos del carrito en la tabla de ventas
+            await sequelize.query(
+                `INSERT INTO tbl_ventas (id_usuario, id_producto, cantidad, precio_unitario, precio_total, fecha_venta)
+                 SELECT id_usuario, id_producto, cantidad, precio_unitario, precio_total, NOW()
+                 FROM tbl_carrito_compras
+                 WHERE id_usuario = :id_usuario AND estado = 'pendiente'`,
+                {
+                    replacements: { id_usuario },
+                    type: QueryTypes.INSERT,
+                    transaction,
+                }
+            );
 
-        res.status(200).json({ message: "Compra realizada con éxito" });
+            // Actualizar el stock de los productos
+            await sequelize.query(
+                `UPDATE tbl_productos p
+                 JOIN tbl_carrito_compras c ON p.id = c.id_producto
+                 SET p.stock = p.stock - c.cantidad
+                 WHERE c.id_usuario = :id_usuario AND c.estado = 'pendiente'`,
+                {
+                    replacements: { id_usuario },
+                    type: QueryTypes.UPDATE,
+                    transaction,
+                }
+            );
+
+            // Eliminar los productos del carrito
+            await sequelize.query(
+                `DELETE FROM tbl_carrito_compras 
+                 WHERE id_usuario = :id_usuario AND estado = 'pendiente'`,
+                {
+                    replacements: { id_usuario },
+                    type: QueryTypes.DELETE,
+                    transaction,
+                }
+            );
+
+            // Confirmar la transacción
+            await transaction.commit();
+
+            res.status(200).json({ message: "Compra realizada con éxito y stock actualizado" });
+        } catch (error) {
+            // Revertir la transacción en caso de error
+            await transaction.rollback();
+            throw error;
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error al realizar la compra" });
