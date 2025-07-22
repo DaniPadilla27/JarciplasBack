@@ -4,7 +4,9 @@ const {
     obtenerCarritoPorUsuario,
     eliminarDelCarrito,
     actualizarCarrito,
-    comprarCarrito, // Asegúrate de importar la función
+    comprarCarrito,
+    obtenerVentasConDetalles,
+    descargarVentasCSV
 } = require('../controllers/carrito');
 const router = express.Router();
 
@@ -22,5 +24,11 @@ router.put('/carrito/:id_carrito', actualizarCarrito);
 
 // Ruta para comprar el carrito de un usuario
 router.post('/comprar/:id_usuario', comprarCarrito);
+
+// Ruta para obtener todas las ventas con detalles
+router.get('/ventas', obtenerVentasConDetalles);
+
+// Ruta para descargar las ventas en formato CSV
+router.get('/ventas/csv', descargarVentasCSV);
 
 module.exports = router;

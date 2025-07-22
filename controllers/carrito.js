@@ -279,4 +279,106 @@ const comprarCarrito = async (req, res) => {
     }
 };
 
-module.exports = { agregarAlCarrito, obtenerCarritoPorUsuario, eliminarDelCarrito, actualizarCarrito, comprarCarrito };
+// Controlador para obtener todas las ventas con detalles de usuario y producto
+const obtenerVentasConDetalles = async (req, res) => {
+    try {
+        const ventas = await sequelize.query(
+            `SELECT 
+                v.id_venta,
+                v.id_usuario,
+                v.id_producto,
+                v.cantidad,
+                v.precio_unitario,
+                v.precio_total,
+                v.fecha_venta,
+                u.id_usuarios,
+                u.id_tipo_usuario,
+                u.Nombre,
+                u.Correo,
+                u.Telefono,
+                u.Contraseña,
+                u.Intentos_contraseña,
+                u.id_sesion,
+                u.bloqueadoHasta,
+                u.MFA,
+                u.codigo_recuperacion,
+                u.codigo_recuperacion_expiracion,
+                u.pregunta_secreta,
+                u.respuesta_secreta,
+                p.id,
+                p.nombre_producto,
+                p.precio,
+                p.categoria_id,
+                p.imagen,
+                p.descripcion,
+                p.stock
+            FROM tbl_ventas v
+            INNER JOIN tbl_usuarios u ON v.id_usuario = u.id_usuarios
+            INNER JOIN tbl_productos p ON v.id_producto = p.id
+            ORDER BY v.fecha_venta DESC`,
+            {
+                type: QueryTypes.SELECT,
+            }
+        );
+        res.status(200).json(ventas);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener las ventas" });
+    }
+};
+
+const { Parser } = require('json2csv');
+
+// Controlador para descargar las ventas en formato CSV
+const descargarVentasCSV = async (req, res) => {
+    try {
+        const ventas = await sequelize.query(
+            `SELECT 
+                v.id_venta,
+                v.id_usuario,
+                v.id_producto,
+                v.cantidad,
+                v.precio_unitario,
+                v.precio_total,
+                v.fecha_venta,
+                u.id_usuarios,
+                u.id_tipo_usuario,
+                u.Nombre,
+                u.Correo,
+                u.Telefono,
+                u.Contraseña,
+                u.Intentos_contraseña,
+                u.id_sesion,
+                u.bloqueadoHasta,
+                u.MFA,
+                u.codigo_recuperacion,
+                u.codigo_recuperacion_expiracion,
+                u.pregunta_secreta,
+                u.respuesta_secreta,
+                p.id,
+                p.nombre_producto,
+                p.precio,
+                p.categoria_id,
+                p.imagen,
+                p.descripcion,
+                p.stock
+            FROM tbl_ventas v
+            INNER JOIN tbl_usuarios u ON v.id_usuario = u.id_usuarios
+            INNER JOIN tbl_productos p ON v.id_producto = p.id
+            ORDER BY v.fecha_venta DESC`,
+            {
+                type: QueryTypes.SELECT,
+            }
+        );
+        const parser = new Parser();
+        const csv = parser.parse(ventas);
+        res.header('Content-Type', 'text/csv');
+        res.attachment('ventas.csv');
+        res.send(csv);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al generar el archivo CSV" });
+    }
+};
+
+module.exports = { agregarAlCarrito, obtenerCarritoPorUsuario, eliminarDelCarrito, actualizarCarrito, comprarCarrito, obtenerVentasConDetalles, descargarVentasCSV };
