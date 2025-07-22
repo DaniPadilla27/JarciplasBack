@@ -25,6 +25,7 @@ const productos = require('./routes/productoRouter');
 const carrito = require('./routes/carritoRouter');
 const logger = require('./utils/logger');
 const notificaciones = require('./routes/notificaciones'); // Importa las rutas de notificaciones
+const recomendacionRoutes = require('./routes/recomendacionroutes'); // Importa las rutas de recomendaciones
 
 const helmet = require('helmet'); // Importa Helmet
 
@@ -95,6 +96,7 @@ app.use('/api', AdmRecuperacion);
 app.use('/api', productos);
 app.use('/api', productos);
 app.use('/api', carrito);
+app.use('/api', recomendacionRoutes); // Agrega las rutas de recomendaciones
 app.use('/api', notificaciones); // Agrega las rutas de notificaciones
 
 // Conexión a la base de datos y arranque del servidor
