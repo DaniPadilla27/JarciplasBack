@@ -40,7 +40,7 @@ app.use(express.json());
 // Middleware para manejar CORS
 app.use(
   cors({
-    origin: ['http://localhost:4200','https://jarciplas-front-oyua-m6u2k926p-danipadilla27s-projects.vercel.app',], // Permitir peticiones desde tu frontend
+    origin: ['http://localhost:4200','https://jarciplas-front.vercel.app/public/productos',], // Permitir peticiones desde tu frontend
     
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
