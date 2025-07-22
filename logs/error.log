@@ -59,3 +59,24 @@
 2025-03-26 22:30:26 [ERROR]: Error al iniciar sesión del usuario:
 2025-03-26 22:30:29 [ERROR]: Error al iniciar sesión del usuario:
 2025-03-26 22:30:48 [ERROR]: Error al sincronizar la base de datos: 
+2025-03-27 06:44:13 [ERROR]: Error al sincronizar la base de datos: 
+2025-03-27 08:56:27 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:56:35 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:56:49 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:57:05 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:57:21 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 13:14:58 [ERROR]: Error al sincronizar la base de datos: 
+2025-05-28 20:40:59 [ERROR]: Error al sincronizar la base de datos: 
+2025-06-18 18:46:18 [ERROR]: Error al sincronizar la base de datos: 
+2025-06-19 15:29:18 [ERROR]: Error al sincronizar la base de datos: 
+2025-06-22 20:25:47 [ERROR]: Error al sincronizar la base de datos: 
+2025-07-20 21:06:34 [ERROR]: Error al sincronizar la base de datos: getaddrinfo ENOTFOUND jarciplas_12_jarciplas_project
+2025-07-20 21:09:52 [ERROR]: Error al sincronizar la base de datos: getaddrinfo ENOTFOUND jarciplas_12_jarciplas_proyect
+2025-07-20 21:11:32 [ERROR]: Error al sincronizar la base de datos: connect ETIMEDOUT
+2025-07-20 21:12:26 [ERROR]: Error al sincronizar la base de datos: connect ETIMEDOUT
+2025-07-20 21:36:35 [ERROR]: Error al sincronizar la base de datos: 
+2025-07-20 22:10:05 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:13:08 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:14:22 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:14:35 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:29:54 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'

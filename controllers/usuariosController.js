@@ -167,26 +167,33 @@ const crearUsuario = async (req, res) => {
 
 const iniciarSesionUsuario = async (req, res) => {
   const { Correo, Contraseña } = req.body;
-  
+  console.log('[INFO] Iniciando sesión para:', Correo);
+
   try {
-    // Obtener la cantidad de errores permitidos desde la configuración
+    // Obtener configuración
     const configuracion = await Configuracion.findByPk(1);
+    console.log('[INFO] Configuración cargada:', configuracion?.dataValues);
+
     if (!configuracion) {
+      console.error('[ERROR] Configuración no encontrada.');
       return res.status(500).json({ message: 'Error de configuración no disponible.' });
     }
 
     const cantidadErroresPermitidos = configuracion.cantidad_errores;
 
-    // Buscar el usuario por correo
+    // Buscar usuario
     const usuario = await Usuario.findOne({ where: { Correo } });
+    console.log('[INFO] Usuario encontrado:', usuario?.dataValues);
 
     if (!usuario) {
+      console.warn('[WARN] Usuario no encontrado con el correo:', Correo);
       return res.status(401).json({ message: 'Credenciales inválidas.' });
     }
 
-    // Verificar si la cuenta está bloqueada
+    // Verificar si cuenta está bloqueada
     if (usuario.Intentos_contraseña >= cantidadErroresPermitidos) {
       const tiempoBloqueoRestante = usuario.bloqueadoHasta - Date.now();
+      console.log('[INFO] Tiempo de bloqueo restante:', tiempoBloqueoRestante);
 
       if (tiempoBloqueoRestante > 0) {
         const segundosRestantes = Math.floor(tiempoBloqueoRestante / 1000);
@@ -194,27 +201,31 @@ const iniciarSesionUsuario = async (req, res) => {
           message: `Cuenta bloqueada. Intenta de nuevo en ${segundosRestantes} segundos.`,
         });
       } else {
-        // Restablecer el contador de intentos y desbloquear la cuenta
+        console.log('[INFO] Desbloqueando cuenta...');
         usuario.Intentos_contraseña = 0;
         usuario.bloqueadoHasta = null;
         await usuario.save();
       }
     }
 
-    // Comparar la contraseña ingresada con la almacenada
+    // Comparar contraseñas
     const esCoincidente = await bcrypt.compare(Contraseña, usuario.Contraseña);
+    console.log('[INFO] Contraseña coincidente:', esCoincidente);
 
     if (!esCoincidente) {
       usuario.Intentos_contraseña += 1;
 
-      // Bloquear cuenta si se alcanzó el límite de intentos
       if (usuario.Intentos_contraseña >= cantidadErroresPermitidos) {
-        usuario.bloqueadoHasta = Date.now() + 5 * 60 * 1000; // Bloquear por 5 minutos
+        console.warn('[WARN] Límite de intentos alcanzado. Bloqueando cuenta.');
+        usuario.bloqueadoHasta = Date.now() + 5 * 60 * 1000;
+
         await FrecuenciaBloqueosUsuarios.create({
           id_usuario: usuario.id_usuarios,
           fecha: new Date(),
         });
+
         await usuario.save();
+
         return res.status(403).json({ message: 'Cuenta bloqueada temporalmente por intentos fallidos.' });
       }
 
@@ -222,7 +233,8 @@ const iniciarSesionUsuario = async (req, res) => {
       return res.status(401).json({ message: 'Credenciales inválidas.' });
     }
 
-    // Restablecer intentos y proceder con el inicio de sesión exitoso
+    // Inicio exitoso
+    console.log('[INFO] Inicio de sesión exitoso para usuario:', usuario.id_usuarios);
     usuario.Intentos_contraseña = 0;
     usuario.bloqueadoHasta = null;
 
@@ -237,17 +249,17 @@ const iniciarSesionUsuario = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    // Devolver los datos del usuario al frontend
     res.status(200).json({
       id_usuario: usuario.id_usuarios,
-      tipo_usuario: usuario.id_tipo_usuario, // Enviar tipo de usuario
+      tipo_usuario: usuario.id_tipo_usuario,
       message: 'Inicio de sesión exitoso.',
     });
   } catch (error) {
-    logger.error('Error al iniciar sesión del usuario:', error);
+    console.error('[ERROR] Error al iniciar sesión:', error);
     res.status(500).json({ message: 'Error interno al iniciar sesión.' });
   }
 };
+
 
 
 

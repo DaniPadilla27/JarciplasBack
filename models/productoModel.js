@@ -21,7 +21,7 @@ const Producto = sequelize.define('tbl_productos', {
     allowNull: false,
   },
   imagen: {
-    type: DataTypes.BLOB('long'), // Cambia a STRING si usas URL
+    type: DataTypes.STRING(255), // Cambiado a STRING para URLs
     allowNull: false,
   },
   descripcion: {

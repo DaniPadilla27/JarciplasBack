@@ -781,3 +781,86 @@
 2025-03-26 09:16:45 [INFO]: Servidor corriendo en el puerto 3001
 2025-03-26 09:31:36 [INFO]: Servidor corriendo en el puerto 3001
 2025-03-26 09:56:48 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 03:30:16 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 04:18:41 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 04:20:04 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 04:20:10 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 04:20:12 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 04:54:58 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 04:59:01 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 05:58:04 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 05:58:06 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 06:13:10 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 06:13:13 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 06:44:13 [ERROR]: Error al sincronizar la base de datos: 
+2025-03-27 06:45:01 [INFO]: Servidor corriendo en el puerto 3001
+2025-03-27 08:56:27 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:56:35 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:56:49 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:57:05 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 08:57:21 [ERROR]: Error al iniciar sesión del usuario:
+2025-03-27 13:14:58 [ERROR]: Error al sincronizar la base de datos: 
+2025-05-28 20:40:59 [ERROR]: Error al sincronizar la base de datos: 
+2025-05-28 20:41:58 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 18:46:18 [ERROR]: Error al sincronizar la base de datos: 
+2025-06-18 18:46:51 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 18:47:12 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 19:54:56 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 19:58:14 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 19:58:42 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 20:16:45 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 20:22:12 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 20:32:22 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 22:47:09 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 23:07:48 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 23:34:23 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 23:35:50 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-18 23:39:40 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-19 00:05:44 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-19 09:47:44 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-19 15:29:18 [ERROR]: Error al sincronizar la base de datos: 
+2025-06-19 15:30:06 [INFO]: Servidor corriendo en el puerto 3001
+2025-06-22 20:25:47 [ERROR]: Error al sincronizar la base de datos: 
+2025-06-22 20:27:14 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-04 12:38:46 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-16 15:38:46 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-19 16:58:43 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-19 17:25:15 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-19 17:32:03 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-19 17:41:40 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 13:57:50 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 14:48:10 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 15:04:16 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 15:23:44 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 15:30:40 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 15:47:35 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 15:53:52 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 16:05:41 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:06:34 [ERROR]: Error al sincronizar la base de datos: getaddrinfo ENOTFOUND jarciplas_12_jarciplas_project
+2025-07-20 21:09:52 [ERROR]: Error al sincronizar la base de datos: getaddrinfo ENOTFOUND jarciplas_12_jarciplas_proyect
+2025-07-20 21:11:32 [ERROR]: Error al sincronizar la base de datos: connect ETIMEDOUT
+2025-07-20 21:12:26 [ERROR]: Error al sincronizar la base de datos: connect ETIMEDOUT
+2025-07-20 21:14:32 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:14:54 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:29:04 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:36:35 [ERROR]: Error al sincronizar la base de datos: 
+2025-07-20 21:36:59 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:39:08 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:41:54 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:44:30 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 21:51:54 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 22:10:05 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:13:08 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:14:22 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:14:35 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:29:54 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-07-20 22:30:04 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 22:42:10 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 23:01:18 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 23:06:07 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 23:12:34 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-20 23:14:14 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-21 00:55:25 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-21 02:32:16 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-21 13:05:44 [INFO]: Servidor corriendo en el puerto 3001
+2025-07-21 18:48:49 [INFO]: Servidor corriendo en el puerto 3001

@@ -1,43 +1,84 @@
 const sequelize = require('../config/db');  // Asegúrate de tener la configuración de la base de datos
 const { QueryTypes } = require('sequelize');
+const { notificarAdminsSiStockBajo } = require('./notificaciones');
 
 // Controlador para agregar un producto al carrito
 const agregarAlCarrito = async (req, res) => {
     const { id_usuario, id_producto, cantidad } = req.body;
 
     try {
-        // Consulta dinámica para obtener el precio del producto
-        const precioUnitario = await sequelize.query(
-            `SELECT IFNULL(precio, 34.00) AS precio_unitario FROM tbl_productos WHERE id = :id_producto`,
+        // Verificar si el producto ya existe en el carrito del usuario
+        const existingItem = await sequelize.query(
+            `SELECT * FROM tbl_carrito_compras WHERE id_usuario = :id_usuario AND id_producto = :id_producto AND estado = 'pendiente'`,
             {
-                replacements: { id_producto },
+                replacements: { id_usuario, id_producto },
                 type: QueryTypes.SELECT,
             }
         );
 
-        // Verificar que el precio se haya obtenido correctamente
-        if (!precioUnitario || precioUnitario.length === 0) {
-            return res.status(400).json({ message: "Producto no encontrado" });
-        }
+        if (existingItem && existingItem.length > 0) {
+            // Si existe, incrementar la cantidad
+            const newCantidad = existingItem[0].cantidad + cantidad;
+            const precioUnitario = await sequelize.query(
+                `SELECT precio AS precio_unitario FROM tbl_productos WHERE id = :id_producto`,
+                {
+                    replacements: { id_producto },
+                    type: QueryTypes.SELECT,
+                }
+            );
 
-        const precio_unitario = precioUnitario[0].precio_unitario;
-        const precio_total = precio_unitario * cantidad;
-
-        // Insertar en el carrito
-        await sequelize.query(
-            `INSERT INTO tbl_carrito_compras (id_usuario, id_producto, cantidad, precio_unitario, precio_total, estado)
-            VALUES (:id_usuario, :id_producto, :cantidad, :precio_unitario, :precio_total, 'pendiente')`,
-            {
-                replacements: {
-                    id_usuario,
-                    id_producto,
-                    cantidad,
-                    precio_unitario,
-                    precio_total,
-                },
-                type: QueryTypes.INSERT,
+            if (!precioUnitario || precioUnitario.length === 0 || precioUnitario[0].precio_unitario === null) {
+                return res.status(400).json({ message: "Producto no encontrado o precio no definido" });
             }
-        );
+
+            const precio_unitario = precioUnitario[0].precio_unitario;
+            const precio_total = precio_unitario * newCantidad;
+
+            await sequelize.query(
+                `UPDATE tbl_carrito_compras 
+                 SET cantidad = :cantidad, precio_total = :precio_total 
+                 WHERE id_carrito = :id_carrito`,
+                {
+                    replacements: {
+                        cantidad: newCantidad,
+                        precio_total,
+                        id_carrito: existingItem[0].id_carrito,
+                    },
+                    type: QueryTypes.UPDATE,
+                }
+            );
+        } else {
+            // Si no existe, obtener el precio y crear un nuevo registro
+            const precioUnitario = await sequelize.query(
+                `SELECT precio AS precio_unitario FROM tbl_productos WHERE id = :id_producto`,
+                {
+                    replacements: { id_producto },
+                    type: QueryTypes.SELECT,
+                }
+            );
+
+            if (!precioUnitario || precioUnitario.length === 0 || precioUnitario[0].precio_unitario === null) {
+                return res.status(400).json({ message: "Producto no encontrado o precio no definido" });
+            }
+
+            const precio_unitario = precioUnitario[0].precio_unitario;
+            const precio_total = precio_unitario * cantidad;
+
+            await sequelize.query(
+                `INSERT INTO tbl_carrito_compras (id_usuario, id_producto, cantidad, precio_unitario, precio_total, estado)
+                 VALUES (:id_usuario, :id_producto, :cantidad, :precio_unitario, :precio_total, 'pendiente')`,
+                {
+                    replacements: {
+                        id_usuario,
+                        id_producto,
+                        cantidad,
+                        precio_unitario,
+                        precio_total,
+                    },
+                    type: QueryTypes.INSERT,
+                }
+            );
+        }
 
         res.status(201).json({ message: "Producto agregado al carrito" });
     } catch (error) {
@@ -58,7 +99,7 @@ const obtenerCarritoPorUsuario = async (req, res) => {
                 c.id_usuario,
                 c.id_producto,
                 p.nombre_producto,
-                 p.stock,
+                p.stock,
                 c.cantidad,
                 c.precio_unitario,
                 c.precio_total,
@@ -127,9 +168,17 @@ const actualizarCarrito = async (req, res) => {
     const { cantidad } = req.body;
 
     try {
+        // Validación de cantidad
+        if (!cantidad || isNaN(cantidad) || cantidad <= 0) {
+            return res.status(400).json({ message: "Cantidad inválida" });
+        }
+
         // Verificar si el item existe en el carrito
         const item = await sequelize.query(
-            `SELECT * FROM tbl_carrito_compras WHERE id_carrito = :id_carrito`,
+            `SELECT c.id_carrito, c.id_producto, c.cantidad, p.stock, p.precio AS precio_unitario 
+             FROM tbl_carrito_compras c 
+             JOIN tbl_productos p ON c.id_producto = p.id 
+             WHERE c.id_carrito = :id_carrito`,
             {
                 replacements: { id_carrito },
                 type: QueryTypes.SELECT,
@@ -140,20 +189,11 @@ const actualizarCarrito = async (req, res) => {
             return res.status(404).json({ message: "El producto no existe en el carrito" });
         }
 
-        // Obtener el precio unitario del producto
-        const precioUnitario = await sequelize.query(
-            `SELECT IFNULL(precio, 34.00) AS precio_unitario FROM tbl_productos WHERE id = :id_producto`,
-            {
-                replacements: { id_producto: item[0].id_producto },
-                type: QueryTypes.SELECT,
-            }
-        );
-
-        if (!precioUnitario || precioUnitario.length === 0) {
-            return res.status(400).json({ message: "Producto no encontrado" });
+        const { id_producto, stock, precio_unitario } = item[0];
+        if (stock < cantidad) {
+            return res.status(400).json({ message: `Stock insuficiente. Disponible: ${stock}` });
         }
 
-        const precio_unitario = precioUnitario[0].precio_unitario;
         const precio_total = precio_unitario * cantidad;
 
         // Actualizar la cantidad y el precio total en el carrito
@@ -196,17 +236,22 @@ const comprarCarrito = async (req, res) => {
             );
 
             // Actualizar el stock de los productos
+            // Actualizar el stock de los productos
             await sequelize.query(
                 `UPDATE tbl_productos p
-                 JOIN tbl_carrito_compras c ON p.id = c.id_producto
-                 SET p.stock = p.stock - c.cantidad
-                 WHERE c.id_usuario = :id_usuario AND c.estado = 'pendiente'`,
+     JOIN tbl_carrito_compras c ON p.id = c.id_producto
+     SET p.stock = p.stock - c.cantidad
+     WHERE c.id_usuario = :id_usuario AND c.estado = 'pendiente'`,
                 {
                     replacements: { id_usuario },
                     type: QueryTypes.UPDATE,
                     transaction,
                 }
             );
+
+                        // Aquí llamas a la función de notificaciones
+            await notificarAdminsSiStockBajo();
+
 
             // Eliminar los productos del carrito
             await sequelize.query(
@@ -234,4 +279,4 @@ const comprarCarrito = async (req, res) => {
     }
 };
 
-module.exports = { agregarAlCarrito, obtenerCarritoPorUsuario ,eliminarDelCarrito, actualizarCarrito ,comprarCarrito};
+module.exports = { agregarAlCarrito, obtenerCarritoPorUsuario, eliminarDelCarrito, actualizarCarrito, comprarCarrito };

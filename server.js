@@ -21,10 +21,10 @@ const InformacionEmpresa = require('./routes/informacionEmpresaRoutes');
 const contactoEmpresa = require('./routes/contactoEmpresaRoutes');
 const Recuperacion = require('./routes/recuperacionRoutes');
 const AdmRecuperacion = require('./routes/adminRoutes');
-const cloudinary = require('./routes/cloudinary');
 const productos = require('./routes/productoRouter');
 const carrito = require('./routes/carritoRouter');
 const logger = require('./utils/logger');
+const notificaciones = require('./routes/notificaciones'); // Importa las rutas de notificaciones
 
 const helmet = require('helmet'); // Importa Helmet
 
@@ -39,7 +39,8 @@ app.use(express.json());
 // Middleware para manejar CORS
 app.use(
   cors({
-    origin: ['http://localhost:4200'], // Permitir peticiones desde tu frontend
+    origin: ['http://localhost:4200','https://jarciplas-front-oyua-m6u2k926p-danipadilla27s-projects.vercel.app',], // Permitir peticiones desde tu frontend
+    
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Métodos permitidos
     allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
     credentials: true, // Permitir envío de cookies si es necesario
@@ -91,10 +92,10 @@ app.use('/api', InformacionEmpresa);
 app.use('/api', contactoEmpresa);
 app.use('/api', Recuperacion);
 app.use('/api', AdmRecuperacion);
-app.use('/api', cloudinary);
 app.use('/api', productos);
 app.use('/api', productos);
 app.use('/api', carrito);
+app.use('/api', notificaciones); // Agrega las rutas de notificaciones
 
 // Conexión a la base de datos y arranque del servidor
 sequelize.sync().then(() => {
