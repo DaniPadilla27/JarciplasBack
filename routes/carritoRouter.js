@@ -1,34 +1,27 @@
-const express = require('express');
+const express = require("express")
 const {
-    agregarAlCarrito,
-    obtenerCarritoPorUsuario,
-    eliminarDelCarrito,
-    actualizarCarrito,
-    comprarCarrito,
-    obtenerVentasConDetalles,
-    descargarVentasCSV
-} = require('../controllers/carrito');
-const router = express.Router();
+  agregarAlCarrito,
+  obtenerCarritoPorUsuario,
+  eliminarDelCarrito,
+  actualizarCarrito,
+  comprarCarrito,
+  obtenerVentasConDetalles,
+  obtenerDatasetRecomendaciones, // 🚀 NUEVA RUTA PARA ML
+  descargarVentasCSV,
+} = require("../controllers/carrito")
 
-// Ruta para agregar un producto al carrito
-router.post('/carrito', agregarAlCarrito);
+const router = express.Router()
 
-// Ruta para obtener el carrito de un usuario por su ID
-router.get('/carrito/:id_usuario', obtenerCarritoPorUsuario);
+// Rutas existentes
+router.post("/carrito", agregarAlCarrito)
+router.get("/carrito/:id_usuario", obtenerCarritoPorUsuario)
+router.delete("/carrito/:id_carrito", eliminarDelCarrito)
+router.put("/carrito/:id_carrito", actualizarCarrito)
+router.post("/comprar/:id_usuario", comprarCarrito)
+router.get("/ventas", obtenerVentasConDetalles)
+router.get("/ventas/csv", descargarVentasCSV)
 
-// Ruta para eliminar un producto del carrito
-router.delete('/carrito/:id_carrito', eliminarDelCarrito);
+// 🚀 NUEVA RUTA: Dataset optimizado para machine learning
+router.get("/dataset/recomendaciones", obtenerDatasetRecomendaciones)
 
-// Ruta para actualizar la cantidad de un producto en el carrito
-router.put('/carrito/:id_carrito', actualizarCarrito);
-
-// Ruta para comprar el carrito de un usuario
-router.post('/comprar/:id_usuario', comprarCarrito);
-
-// Ruta para obtener todas las ventas con detalles
-router.get('/ventas', obtenerVentasConDetalles);
-
-// Ruta para descargar las ventas en formato CSV
-router.get('/ventas/csv', descargarVentasCSV);
-
-module.exports = router;
+module.exports = router
