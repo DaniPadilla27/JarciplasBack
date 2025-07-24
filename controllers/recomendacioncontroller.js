@@ -36,3 +36,4 @@ const obtenerRecomendaciones = (req, res) => {
 module.exports = {
   obtenerRecomendaciones
 };
+
