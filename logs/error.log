@@ -80,3 +80,18 @@
 2025-07-20 22:14:22 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
 2025-07-20 22:14:35 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
 2025-07-20 22:29:54 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'mysql'@'%' to database 'proyectojarciplas'
+2025-09-09 16:00:43 [ERROR]: Error al sincronizar la base de datos: connect ETIMEDOUT
+2025-09-30 15:25:51 [ERROR]: Error al sincronizar la base de datos: connect ETIMEDOUT
+2025-09-30 15:29:09 [ERROR]: Error al sincronizar la base de datos: Unknown database 'jarciplas'
+2025-09-30 15:56:22 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 15:57:05 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 15:57:18 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 15:57:24 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 15:57:47 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 15:59:01 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 15:59:48 [ERROR]: Error al crear el usuario: Unknown column 'Contraseña' in 'field list'
+2025-09-30 16:06:49 [ERROR]: Error al crear el usuario: Unknown column 'Intentos_contraseña' in 'field list'
+2025-09-30 16:07:59 [ERROR]: Error al crear el usuario: Unknown column 'Intentos_contraseña' in 'field list'
+2025-09-30 16:08:45 [ERROR]: Error al crear el usuario: Unknown column 'Intentos_contraseña' in 'field list'
+2025-09-30 16:08:56 [ERROR]: Error al crear el usuario: Unknown column 'Intentos_contraseña' in 'field list'
+2025-10-02 15:19:47 [ERROR]: Error al sincronizar la base de datos: 
