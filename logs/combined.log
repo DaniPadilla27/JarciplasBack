@@ -912,3 +912,13 @@
 2025-10-02 15:24:11 [INFO]: Servidor corriendo en el puerto 3001
 2025-10-07 18:29:02 [INFO]: Servidor corriendo en el puerto 3001
 2025-10-07 18:37:16 [INFO]: Servidor corriendo en el puerto 3001
+2025-10-07 19:29:30 [INFO]: Servidor corriendo en el puerto 3001
+2025-10-24 14:50:37 [INFO]: Servidor corriendo en el puerto 3001
+2025-11-05 21:29:03 [INFO]: Servidor corriendo en el puerto 3001
+2025-11-06 14:39:15 [INFO]: Servidor corriendo en el puerto 3001
+2025-11-06 16:02:39 [INFO]: Servidor corriendo en el puerto 3001
+2025-11-12 17:26:40 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'marlenhe_Marlen'@'%' to database 'marlenhe_jarciplas'
+2025-11-12 17:27:19 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'marlenhe_Marlen'@'%' to database 'marlenhe_Jarciplas'
+2025-11-12 17:27:48 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'marlenhe_Marlen'@'%' to database 'marlenhe_Jarciplas'
+2025-11-12 17:34:09 [INFO]: Servidor corriendo en el puerto 3001
+2025-11-12 17:35:15 [INFO]: Servidor corriendo en el puerto 3001

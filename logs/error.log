@@ -95,3 +95,6 @@
 2025-09-30 16:08:45 [ERROR]: Error al crear el usuario: Unknown column 'Intentos_contraseña' in 'field list'
 2025-09-30 16:08:56 [ERROR]: Error al crear el usuario: Unknown column 'Intentos_contraseña' in 'field list'
 2025-10-02 15:19:47 [ERROR]: Error al sincronizar la base de datos: 
+2025-11-12 17:26:40 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'marlenhe_Marlen'@'%' to database 'marlenhe_jarciplas'
+2025-11-12 17:27:19 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'marlenhe_Marlen'@'%' to database 'marlenhe_Jarciplas'
+2025-11-12 17:27:48 [ERROR]: Error al sincronizar la base de datos: Access denied for user 'marlenhe_Marlen'@'%' to database 'marlenhe_Jarciplas'
