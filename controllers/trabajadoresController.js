@@ -1,5 +1,5 @@
 const axios = require('axios');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Trabajador = require('../models/trabajadoresModel');
 const Usuario = require('../models/usuariosModel');
 const FrecuenciaBloqueos = require('../models/frecuenciaBloqueosTrabajadoresModel');

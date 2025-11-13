@@ -8,7 +8,7 @@ const QRCode = require('qrcode');
 const validator = require('validator');
 const Configuracion = require('../models/configuracionModel');
 
-const bcrypt = require('bcrypt'); // Importar bcrypt para el hashing de contraseñas
+const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger'); // Importamos el logger
 
 

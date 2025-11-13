@@ -1,7 +1,7 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const Usuario = require('../models/usuariosModel');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {

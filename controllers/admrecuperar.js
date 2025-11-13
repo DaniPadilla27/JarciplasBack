@@ -1,5 +1,5 @@
 const Usuario = require('../models/usuariosModel'); // Importa el modelo de usuario
-const bcrypt = require('bcrypt'); // Para encriptar la contraseña
+const bcrypt = require('bcryptjs');
 const logger = require('../utils/logger'); // Importa el logger
 
 // Controlador para obtener la lista de todos los usuarios
